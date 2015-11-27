@@ -1,7 +1,10 @@
 package com.example.kos.teamheliotrope;
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -10,42 +13,55 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DecimalFormat;
 
 /**
  * Created by jamiegoodson on 26/11/2015.
  */
-public class DataThread extends Thread {
+public class DataRetrieverThread extends Thread {
+    final static String TAG = "RETRIEVER_THREAD";
     MainActivity mainActivity;
-    JSONArray JSONWebsiteData;
-    String website;
+    JSONArray jsonArray;
+    Country country;
+    String query;
+    String countryCode;
+    String indicatorCode;
 
-    public DataThread(MainActivity mainActivity, String website) {
+
+    public DataRetrieverThread(MainActivity mainActivity, Country country, String countryCode, String indicatorCode) {
         this.mainActivity = mainActivity;
-        this.website = website;
+        this.country = country;
+        this.indicatorCode = indicatorCode;
+        this.countryCode = countryCode;
+        this.query = "http://api.worldbank.org/countries/" + countryCode + "/indicators/" + indicatorCode + "?per_page=100&date=1960:2015&format=json";
     }
 
     @Override
     public void run() {
-        JSONWebsiteData = generateWebsiteData();
-        mainActivity.displayData(JSONWebsiteData);
+        Log.d(TAG, "Starting thread...");
+        jsonArray = generateJSONArray();
+        mainActivity.displayData(jsonArray);
     }
 
-    private JSONArray generateWebsiteData() {
+    private JSONArray generateJSONArray() {
         // open connection
         URL url = null;
+
         try {
-            url = new URL(website);
+            url = new URL(query);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
+
         InputStream inStream = null;
         try {
             inStream = url.openStream();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         DataInputStream dataInStream = null;
-        if (inStream != null){
+        if (inStream != null) {
             dataInStream = new DataInputStream(inStream);
         }
 
@@ -76,7 +92,26 @@ public class DataThread extends Thread {
         }
     }
 
-    public JSONArray getData() {
-        return JSONWebsiteData;
+    public void addDataToCountry() {
+        try {
+            JSONArray dataArray = jsonArray.getJSONArray(1);
+            JSONObject dataForThisYear;
+            String year;
+            String value;
+
+            for (int i = 0; i < dataArray.length(); ++i) {
+                dataForThisYear = dataArray.getJSONObject(i);
+
+                if (indicatorCode.equals("EN.ATM.CO2E.PC")) {
+                    country.addCO2Value(Float.parseFloat(dataForThisYear.getString("value")));
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public JSONArray getJsonArray() {
+        return jsonArray;
     }
 }

@@ -13,22 +13,40 @@ import java.text.DecimalFormat;
 public class MainActivity extends AppCompatActivity {
     String output;
     TextView textView;
-    DataThread dataThread;
+    Countries countries;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         init();
-
-        dataThread = new DataThread(this, "http://api.worldbank.org/countries/indicators/2.0.cov.Ele?per_page=300&date=1960:2015&format=json");
-        dataThread.start();
-        JSONArray data = dataThread.getData();
     }
 
     protected void init(){
         textView = (TextView) findViewById(R.id.textView);
         output = "";
+
+        // http://api.worldbank.org/countries/GBR/indicators/5.1.1_TOTAL.CAPACITY?per_page=100&date=1960:2015&format=json
+
+
+        String[] countryCodes = { // List of country codes to get data for
+                "GBR",  // UK
+                "FRA",  // France
+                "ESP",  // Spain
+                "DEU",  // Germany
+                "USA",  // USA
+                "CHN",  // China
+                "RUS"   // Russia
+        };
+        String[] indicatorCodes = {
+                "EN.ATM.CO2E.PC" // CO2 emissions (metric tons per capita)
+        };
+        for (String countryCode : countryCodes) {
+            Country country = new Country();
+            for (String indicatorCode : indicatorCodes) {
+                new DataRetrieverThread(this, country, countryCode, indicatorCode).start();
+            }
+        }
     }
 
     public void displayData(final JSONArray websiteData) {
