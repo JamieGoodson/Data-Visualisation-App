@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
+import android.util.TypedValue;
 import android.widget.TextView;
 
 import com.example.kos.teamheliotrope.R;
@@ -15,6 +16,7 @@ import com.example.kos.teamheliotrope.backend.Country;
 import com.example.kos.teamheliotrope.backend.Indicator;
 import com.example.kos.teamheliotrope.backend.Value;
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
@@ -46,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         chart = (BarChart) findViewById(R.id.mainChart);
 
         initData();
-        displayData();
+        displayData(); // Comment out when not debugging
         setupChart();
     }
 
@@ -54,6 +56,10 @@ public class MainActivity extends AppCompatActivity {
      * A test chart using hard-code values.
      */
     private void setupChart() {
+
+        //TODO: If using one indicator OR one country, use pie chart. Else use another chart type.
+
+        //TODO: Handle what happens when user requests values that do not exist for that indicator (e.g. no values for year 1993)
 
         // Get countries
         Log.d(TAG, "" + Countries.getCountries().size());
@@ -112,6 +118,8 @@ public class MainActivity extends AppCompatActivity {
         BarData barData = new BarData(new ArrayList<>(xVals), barDataSets);
 
         // Set data
+        chart.setDescription(Countries.getCountry(0).getIndicator(indicatorId).getTitle());
+        chart.setDescriptionTextSize(12);
         chart.setData(barData);
         chart.invalidate(); // Refresh
     }
@@ -131,6 +139,19 @@ public class MainActivity extends AppCompatActivity {
                 "RU"   // Russia
         };
         String[] indicatorCodes = {
+                "1.1_TOTAL.FINAL.ENERGY.CONSUM", // Total final energy consumption (TFEC) (TJ)
+                "2.1.1_SHARE.TRADBIO", // Solid biofuels for traditional uses share of TFEC (%)
+                "2.1.10_SHARE.MARINE", // Marine energy share of TFEC (%)
+                "2.1.2_SHARE.MODERNBIO", // Solid biofuels for modern uses share of TFEC (%)
+                "2.1.3_SHARE.HYDRO", // Hydro energy share of TFEC (%)
+                "2.1.4_SHARE.BIOFUELS", // Liquid biofuels share of TFEC (%)
+                "2.1.5_SHARE.WIND", // Wind energy share of TFEC (%)
+                "2.1.6_SHARE.SOLAR", // Solar energy share of TFEC (%)
+                "2.1.7_SHARE.GEOTHERMAL", // Geothermal energy share of TFEC (%)
+                "2.1.8_SHARE.WASTE", // Waste energy share of TFEC (%)
+                "2.1.9_SHARE.BIOGAS", // Biogas share of TFEC (%)
+                "EG.USE.COMM.FO.ZS", // Fossil fuel energy consumption (% of total)
+                "EG.FEC.RNEW.ZS", // Renewable energy consumption (% of total final energy consumption)
                 "EN.ATM.CO2E.PC" // CO2 emissions (metric tons per capita)
         };
 
@@ -170,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, String.format("%s | %s", value.getDate(), value.getValue()));
                 }
             }
-
         }
+        Log.d(TAG, "END OF DATA");
     }
 }
