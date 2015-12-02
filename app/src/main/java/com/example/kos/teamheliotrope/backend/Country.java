@@ -32,15 +32,6 @@ public class Country {
         return indicators;
     }
 
-    public boolean doesIndicatorExist(String id) {
-        if (indicators.isEmpty()) return false;
-
-        for (Indicator indicator : indicators) {
-            if (indicator.getId().equals(id)) return true;
-        }
-        return false;
-    }
-
     public void setName(String name) {
         this.name = name;
     }

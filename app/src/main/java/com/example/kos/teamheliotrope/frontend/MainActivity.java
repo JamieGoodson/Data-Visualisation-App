@@ -102,18 +102,6 @@ public class MainActivity extends AppCompatActivity {
             barDataSets.add(barDataSet);
         }
 
-/*        ArrayList<BarEntry> yValsCountry2 = new ArrayList<>(Arrays.asList(
-                new BarEntry(201f, 0), // Year 1
-                new BarEntry(92f, 1), // Year 2
-                new BarEntry(156f, 2) // Year 3
-            )
-        );
-
-        BarDataSet country1 = new BarDataSet(yValsCountry1, "England");
-        country1.setColor(Color.HSVToColor(new float[]{0, 40, 100}));
-        BarDataSet country2 = new BarDataSet(yValsCountry2, "France");
-        country2.setColor(Color.HSVToColor(new float[]{212, 40, 100}));*/
-
         // Combine X + Y values
         BarData barData = new BarData(new ArrayList<>(xVals), barDataSets);
 
@@ -125,9 +113,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initData(){
-
-        // http://api.worldbank.org/countries/GBR/indicators/5.1.1_TOTAL.CAPACITY?per_page=100&date=1960:2015&format=json
-
         // Important: Always use country IDs shown in the JSON and NOT from the API query builder
         String[] countryCodes = { // List of country codes to get data for
                 "GB",  // UK
