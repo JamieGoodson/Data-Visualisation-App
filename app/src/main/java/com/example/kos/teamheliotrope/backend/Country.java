@@ -4,21 +4,41 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
-/**
- * Created by Jamie on 27/11/2015.
- */
 public class Country {
     public static final String TAG = "COUNTRY";
     String name;
     String id;
-    ArrayList<DateIndicatorValue> dateIndicatorValues;
+    ArrayList<Indicator> indicators;
 
     public Country() {
-        dateIndicatorValues = new ArrayList<>();
+        name = "";
+        id = "";
+        indicators = new ArrayList<>();
     }
 
-    public void addDateIndicatorValue(DateIndicatorValue dateIndicatorValue) {
-        dateIndicatorValues.add(dateIndicatorValue);
+    public void addIndicator(Indicator indicator) {
+        indicators.add(indicator);
+    }
+
+    public Indicator getIndicator(String id) {
+        for (Indicator indicator : indicators) {
+            if (indicator.getId().equals(id)) return indicator;
+        }
+
+        return null; // Does not exist
+    }
+
+    public ArrayList<Indicator> getIndicators() {
+        return indicators;
+    }
+
+    public boolean doesIndicatorExist(String id) {
+        if (indicators.isEmpty()) return false;
+
+        for (Indicator indicator : indicators) {
+            if (indicator.getId().equals(id)) return true;
+        }
+        return false;
     }
 
     public void setName(String name) {
@@ -35,15 +55,5 @@ public class Country {
 
     public String getId() {
         return id;
-    }
-
-    public void logDateIndicatorValues() {
-        String string = "";
-
-        for (DateIndicatorValue div : dateIndicatorValues) {
-            string += String.format("%s\n", div.toString());
-        }
-
-        Log.d(TAG, string);
     }
 }

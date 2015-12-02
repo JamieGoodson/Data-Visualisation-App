@@ -15,13 +15,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
-/**
- * Created by jamiegoodson on 26/11/2015.
- */
 public class DataRetrieverThread extends Thread {
     final static String TAG = "RETRIEVER_THREAD";
     MainActivity mainActivity;
@@ -42,12 +36,13 @@ public class DataRetrieverThread extends Thread {
 
     @Override
     public void run() {
-        Log.d(TAG, "Starting thread...");
-        jsonArray = generateJSONArray();
+        Log.d(TAG, String.format("Starting thread for %s, %s (%s)...", countryCode, indicatorCode, query));
+        jsonArray = fetchJSONArray();
         addDataToCountry();
     }
 
-    private JSONArray generateJSONArray() {
+    // TODO: Handle what happens when device isn't connected to internet. Currently causes app to crash.
+    private JSONArray fetchJSONArray() {
         // open connection
         URL url = null;
 
@@ -61,6 +56,7 @@ public class DataRetrieverThread extends Thread {
         try {
             inStream = url.openStream();
         } catch (IOException e) {
+            Log.e(TAG, String.format("Error with %s, %s", countryCode, indicatorCode));
             e.printStackTrace();
         }
 
@@ -82,7 +78,7 @@ public class DataRetrieverThread extends Thread {
                 // write buffer into output
                 output.write(buffer,0,bufferLength);
             }
-        }catch (IOException e){
+        } catch (IOException e){
             e.printStackTrace();
         }
         try {
@@ -100,35 +96,33 @@ public class DataRetrieverThread extends Thread {
         try {
             JSONArray dataArray = jsonArray.getJSONArray(1);
             JSONObject dataForThisYear;
+
+            String date;
             String value;
 
-            for (int i = 0; i < dataArray.length(); ++i) {
-                dataForThisYear = dataArray.getJSONObject(i);
+            JSONObject firstObject = dataArray.getJSONObject(0); // Use to get initial data
 
+            // Setup country
+            JSONObject jsonCountry = firstObject.getJSONObject("country");
+            country.setName(jsonCountry.getString("value"));
+            country.setId(jsonCountry.getString("id"));
+
+            // Initialise indicator object + add to country
+            JSONObject jsonIndicator = firstObject.getJSONObject("indicator");
+            Indicator indicator = new Indicator(jsonIndicator.getString("id"), jsonIndicator.getString("value"));
+            country.addIndicator(indicator);
+
+            // Begin adding values
+            for (int i = 0; i < dataArray.length(); i++) {
+                dataForThisYear = dataArray.getJSONObject(i);
+                //Log.d(TAG, dataForThisYear.toString());
+
+                date = dataForThisYear.getString("date");
                 value = dataForThisYear.getString("value");
 
-                JSONObject jsonCountry = dataForThisYear.getJSONObject("country");
-
-                country.setName(jsonCountry.getString("value"));
-                country.setId(jsonCountry.getString("id"));
-
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy");
-                Date date = null;
-                try {
-                    date = dateFormat.parse(dataForThisYear.getString("date"));
-                } catch (ParseException e) {
-                    e.printStackTrace();
+                if (!value.equals("null")) { // Skip null values
+                    indicator.addValue(new Value(date, Float.parseFloat(value)));
                 }
-
-                country.addDateIndicatorValue(
-                        new DateIndicatorValue(
-                                date,
-                                dataForThisYear.getJSONObject("indicator").getString("value"),
-                                (value.equals("null")) ? null : Float.parseFloat(value)
-                        )
-                );
-
-                country.logDateIndicatorValues();
             }
         } catch (JSONException e) {
             e.printStackTrace();
