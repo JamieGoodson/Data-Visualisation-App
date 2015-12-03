@@ -3,6 +3,7 @@ package com.example.kos.teamheliotrope.backend;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Country {
     public static final String TAG = "COUNTRY";
@@ -17,14 +18,26 @@ public class Country {
     }
 
     public void addIndicator(Indicator indicator) {
-        indicators.add(indicator);
+        boolean contains = false;
+
+        // Check if indicator already exists
+        for (int i =0; i < indicators.size(); ++i){
+            if (indicators.get(i).getId().equals(indicator.getId())){
+                contains = true;
+                break;
+            }
+        }
+
+        // If indicator doesn't exist, add the indicator
+        if (contains == false){
+            indicators.add(indicator);
+        }
     }
 
     public Indicator getIndicator(String id) {
-        for (Indicator indicator : indicators) {
-            if (indicator.getId().equals(id)) return indicator;
+        for (int i = 0; i < indicators.size(); ++i) {
+            if (indicators.get(i).getId().equals(id)) return indicators.get(i);
         }
-
         return null; // Does not exist
     }
 

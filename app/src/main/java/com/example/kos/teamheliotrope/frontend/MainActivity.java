@@ -1,5 +1,6 @@
 package com.example.kos.teamheliotrope.frontend;
 
+import com.example.kos.teamheliotrope.backend.CountryInfoThread;
 import com.example.kos.teamheliotrope.backend.DataRetrieverThread;
 
 import android.graphics.Color;
@@ -38,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
             Color.parseColor("#795548"), // brown
     };
     public static final String TAG = "MAIN_ACTIVITY";
+    public static final String countryQuery = "http://api.worldbank.org/country?per_page=300&region=WLD&format=json";
     BarChart chart;
 
     @Override
@@ -47,9 +49,20 @@ public class MainActivity extends AppCompatActivity {
 
         chart = (BarChart) findViewById(R.id.mainChart);
 
+        initCountries();
         initData();
         displayData(); // Comment out when not debugging
         setupChart();
+    }
+
+    private void initCountries(){
+        CountryInfoThread countryInfoThread = new CountryInfoThread(countryQuery);
+        countryInfoThread.start();
+        try {
+            countryInfoThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -115,16 +128,7 @@ public class MainActivity extends AppCompatActivity {
     private void initData(){
 
         //TODO: Pull list of countries from World Bank instead of hard-coding them
-        // Important: Always use country IDs shown in the JSON and NOT from the API query builder
-        String[] countryCodes = { // List of country codes to get data for
-                "GB",  // UK
-                "FR",  // France
-                "ES",  // Spain
-                "DE",  // Germany
-                "US",  // USA
-                "CN",  // China
-                "RU"   // Russia
-        };
+
         String[] indicatorCodes = {
                 "1.1_TOTAL.FINAL.ENERGY.CONSUM", // Total final energy consumption (TFEC) (TJ)
                 "2.1.1_SHARE.TRADBIO", // Solid biofuels for traditional uses share of TFEC (%)
@@ -142,26 +146,26 @@ public class MainActivity extends AppCompatActivity {
                 "EN.ATM.CO2E.PC" // CO2 emissions (metric tons per capita)
         };
 
-
         // Create a pool of threads - limits number of threads to avoid JVM crashes
-        ExecutorService executor = Executors.newFixedThreadPool(20);
+        ExecutorService executor = Executors.newFixedThreadPool(30);
         long startTime = System.nanoTime();
 
         // Iterate through each country
         Log.d(TAG, "Iterating through each country....");
-        for (String countryCode : countryCodes) {
-            Country country = new Country();
-            Countries.addCountry(country);
+        for (int i = 0; i < Countries.getCountries().size();++i) {
+
+            Country country = Countries.getCountry(i);
 
             // Iterate through each indicator for this country
             for (String indicatorCode : indicatorCodes) {
-                Runnable dataRetrieverThread = new DataRetrieverThread(country, countryCode, indicatorCode);
+                Runnable dataRetrieverThread = new DataRetrieverThread(country, country.getId(), indicatorCode);
                 executor.execute(dataRetrieverThread);
             }
         }
         executor.shutdown();
 
-        while (!executor.isTerminated()) { // Waits until all executor threads finished
+        while (!executor.isTerminated()) {
+            // Waits until all executor threads finished
         }
 
         Log.d(TAG, String.format("All threads finished (took %fs).", (System.nanoTime() - startTime)/Math.pow(10,9)));

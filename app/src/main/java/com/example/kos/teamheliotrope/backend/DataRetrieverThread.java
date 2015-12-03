@@ -29,7 +29,8 @@ public class DataRetrieverThread extends Thread {
         this.country = country;
         this.indicatorCode = indicatorCode;
         this.countryCode = countryCode;
-        this.query = "http://api.worldbank.org/countries/" + countryCode + "/indicators/" + indicatorCode + "?per_page=100&date=1960:2015&format=json";
+        // IMPORTANT! Make sure the per page part of the JSONQuery is set to 13888 as that's the maximum number of results we could receive in a page
+        this.query = "http://api.worldbank.org/countries/" + this.countryCode + "/indicators/" + this.indicatorCode + "?per_page=13888&date=1960:2015&format=json";
     }
 
     @Override
@@ -100,15 +101,15 @@ public class DataRetrieverThread extends Thread {
 
             JSONObject firstObject = dataArray.getJSONObject(0); // Use to get initial data
 
-            // Setup country
-            JSONObject jsonCountry = firstObject.getJSONObject("country");
-            country.setName(jsonCountry.getString("value"));
-            country.setId(jsonCountry.getString("id"));
-
             // Initialise indicator object + add to country
             JSONObject jsonIndicator = firstObject.getJSONObject("indicator");
-            Indicator indicator = new Indicator(jsonIndicator.getString("id"), jsonIndicator.getString("value"));
-            country.addIndicator(indicator);
+            Indicator indicator;
+            if (country.getIndicator(jsonIndicator.getString("id")) == null){
+                indicator = new Indicator(jsonIndicator.getString("id"), jsonIndicator.getString("value"));
+                country.addIndicator(indicator);
+            }else{
+                indicator = country.getIndicator(jsonIndicator.getString("id"));
+            }
 
             // Begin adding values
             for (int i = 0; i < dataArray.length(); i++) {
