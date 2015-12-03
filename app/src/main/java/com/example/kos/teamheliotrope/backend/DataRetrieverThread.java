@@ -18,7 +18,6 @@ import java.net.URL;
 
 public class DataRetrieverThread extends Thread {
     final static String TAG = "RETRIEVER_THREAD";
-    MainActivity mainActivity;
     JSONArray jsonArray;
     Country country;
     String query;
@@ -26,8 +25,7 @@ public class DataRetrieverThread extends Thread {
     String indicatorCode;
 
 
-    public DataRetrieverThread(MainActivity mainActivity, Country country, String countryCode, String indicatorCode) {
-        this.mainActivity = mainActivity;
+    public DataRetrieverThread(Country country, String countryCode, String indicatorCode) {
         this.country = country;
         this.indicatorCode = indicatorCode;
         this.countryCode = countryCode;
@@ -38,7 +36,7 @@ public class DataRetrieverThread extends Thread {
     public void run() {
         Log.d(TAG, String.format("Starting thread for %s, %s (%s)...", countryCode, indicatorCode, query));
         jsonArray = fetchJSONArray();
-        addDataToCountry();
+        processJSONArray();
     }
 
     // TODO: Handle what happens when device isn't connected to internet. Currently causes app to crash.
@@ -92,7 +90,7 @@ public class DataRetrieverThread extends Thread {
         }
     }
 
-    public void addDataToCountry() {
+    public void processJSONArray() {
         try {
             JSONArray dataArray = jsonArray.getJSONArray(1);
             JSONObject dataForThisYear;

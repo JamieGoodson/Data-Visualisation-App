@@ -113,6 +113,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initData(){
+
+        //TODO: Pull list of countries from World Bank instead of hard-coding them
         // Important: Always use country IDs shown in the JSON and NOT from the API query builder
         String[] countryCodes = { // List of country codes to get data for
                 "GB",  // UK
@@ -153,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
 
             // Iterate through each indicator for this country
             for (String indicatorCode : indicatorCodes) {
-                Runnable dataRetrieverThread = new DataRetrieverThread(this, country, countryCode, indicatorCode);
+                Runnable dataRetrieverThread = new DataRetrieverThread(country, countryCode, indicatorCode);
                 executor.execute(dataRetrieverThread);
             }
         }
