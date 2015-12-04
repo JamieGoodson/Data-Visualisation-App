@@ -18,6 +18,7 @@ import java.net.URL;
 
 public class DataRetrieverThread extends Thread {
     final static String TAG = "RETRIEVER_THREAD";
+    MainActivity mainActivity;
     JSONArray jsonArray;
     Country country;
     String query;
@@ -25,19 +26,19 @@ public class DataRetrieverThread extends Thread {
     String indicatorCode;
 
 
-    public DataRetrieverThread(Country country, String countryCode, String indicatorCode) {
+    public DataRetrieverThread(MainActivity mainActivity, Country country, String countryCode, String indicatorCode) {
+        this.mainActivity = mainActivity;
         this.country = country;
         this.indicatorCode = indicatorCode;
         this.countryCode = countryCode;
-        // IMPORTANT! Make sure the per page part of the JSONQuery is set to 13888 as that's the maximum number of results we could receive in a page
-        this.query = "http://api.worldbank.org/countries/" + this.countryCode + "/indicators/" + this.indicatorCode + "?per_page=13888&date=1960:2015&format=json";
+        this.query = "http://api.worldbank.org/countries/" + countryCode + "/indicators/" + indicatorCode + "?per_page=100&date=1960:2015&format=json";
     }
 
     @Override
     public void run() {
         Log.d(TAG, String.format("Starting thread for %s, %s (%s)...", countryCode, indicatorCode, query));
         jsonArray = fetchJSONArray();
-        processJSONArray();
+        addDataToCountry();
     }
 
     // TODO: Handle what happens when device isn't connected to internet. Currently causes app to crash.
@@ -91,7 +92,7 @@ public class DataRetrieverThread extends Thread {
         }
     }
 
-    public void processJSONArray() {
+    public void addDataToCountry() {
         try {
             JSONArray dataArray = jsonArray.getJSONArray(1);
             JSONObject dataForThisYear;
@@ -101,15 +102,15 @@ public class DataRetrieverThread extends Thread {
 
             JSONObject firstObject = dataArray.getJSONObject(0); // Use to get initial data
 
+            // Setup country
+            JSONObject jsonCountry = firstObject.getJSONObject("country");
+            country.setName(jsonCountry.getString("value"));
+            country.setId(jsonCountry.getString("id"));
+
             // Initialise indicator object + add to country
             JSONObject jsonIndicator = firstObject.getJSONObject("indicator");
-            Indicator indicator;
-            if (country.getIndicator(jsonIndicator.getString("id")) == null){
-                indicator = new Indicator(jsonIndicator.getString("id"), jsonIndicator.getString("value"));
-                country.addIndicator(indicator);
-            }else{
-                indicator = country.getIndicator(jsonIndicator.getString("id"));
-            }
+            Indicator indicator = new Indicator(jsonIndicator.getString("id"), jsonIndicator.getString("value"));
+            country.addIndicator(indicator);
 
             // Begin adding values
             for (int i = 0; i < dataArray.length(); i++) {

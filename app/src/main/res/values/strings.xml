@@ -1,6 +1,14 @@
 <resources>
     <string name="app_name">Data Visualiser</string>
-
     <string name="hello_world">BitBucket Test</string>
     <string name="action_settings">Settings</string>
+    <string-array name="Colors">
+        <item>SolidBiofuels </item>
+        <item>LiquidBiofuels</item>
+        <item>WindEnergy</item>
+        <item>SolarEnergy</item>
+        <item>WasteEnergy</item>
+        <item>BioGas </item>
+        <item>FossilFuel</item>
+    </string-array>
 </resources>

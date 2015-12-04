@@ -1,14 +1,15 @@
 package com.example.kos.teamheliotrope.backend;
 
 import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 
 public class Country {
-    public static final String TAG = "COUNTRY";
+    public static final
+    String TAG = "COUNTRY";
     String name;
     String id;
+
     ArrayList<Indicator> indicators;
 
     public Country() {

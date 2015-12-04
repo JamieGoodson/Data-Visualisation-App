@@ -1,16 +1,18 @@
 package com.example.kos.teamheliotrope.frontend;
 
-import com.example.kos.teamheliotrope.backend.CountryInfoThread;
 import com.example.kos.teamheliotrope.backend.DataRetrieverThread;
-
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
-
 import com.example.kos.teamheliotrope.R;
 import com.example.kos.teamheliotrope.backend.Countries;
 import com.example.kos.teamheliotrope.backend.Country;
@@ -21,15 +23,14 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
-
 import org.json.JSONArray;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
+
     public static final int[] colors = {
             // Android color guidelines: https://www.google.com/design/spec/style/color.html
             Color.parseColor("#F44336"), // red
@@ -38,37 +39,136 @@ public class MainActivity extends AppCompatActivity {
             Color.parseColor("#FF9800"), // orange
             Color.parseColor("#795548"), // brown
     };
+
     public static final String TAG = "MAIN_ACTIVITY";
-    public static final String countryQuery = "http://api.worldbank.org/country?per_page=300&region=WLD&format=json";
     BarChart chart;
+    Spinner spinner;
+    ArrayAdapter<CharSequence> adapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        chart = (BarChart) findViewById(R.id.mainChart);
-
-        initCountries();
         initData();
         displayData(); // Comment out when not debugging
-        setupChart();
+
+        chart = (BarChart) findViewById(R.id.mainChart);
+        spinner = (Spinner) findViewById(R.id.spinner);
+        adapter = ArrayAdapter.createFromResource(this, R.array.Colors, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (parent.getItemAtPosition(position).toString().equals("SolidBiofuels")) {
+                    setupChart("2.1.1_SHARE.TRADBIO");
+                }
+                else if(parent.getItemAtPosition(position).toString().equals("LiquidBiofuels")) {
+                    setupChart("2.1.4_SHARE.BIOFUELS");
+                }
+
+                else if(parent.getItemAtPosition(position).toString().equals("WindEnergy")) {
+                    setupChart("2.1.5_SHARE.WIND");
+                }
+                else if(parent.getItemAtPosition(position).toString().equals("SolarEnergy")) {
+                    setupChart("2.1.6_SHARE.SOLAR");
+                }
+                else if(parent.getItemAtPosition(position).toString().equals("WasteEnergy")) {
+                    setupChart("2.1.8_SHARE.WASTE");
+                }
+                else if(parent.getItemAtPosition(position).toString().equals("BioGas")) {
+                    setupChart("2.1.9_SHARE.BIOGAS");
+                }
+                else if(parent.getItemAtPosition(position).toString().equals("FossilFuel")) {
+                    setupChart("EG.USE.COMM.FO.ZS");
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
     }
 
-    private void initCountries(){
-        CountryInfoThread countryInfoThread = new CountryInfoThread(countryQuery);
-        countryInfoThread.start();
-        try {
-            countryInfoThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    private void initData(){
+
+        // http://api.worldbank.org/countries/GBR/indicators/5.1.1_TOTAL.CAPACITY?per_page=100&date=1960:2015&format=json
+
+        // Important: Always use country IDs shown in the JSON and NOT from the API query builder
+        String[] countryCodes = { // List of country codes to get data for
+                "GB",  // UK
+                "FR",  // France
+                "ES",  // Spain
+                "DE",  // Germany
+                "US",  // USA
+                "CN",  // China
+                "RU"   // Russia
+        };
+        String[] indicatorCodes = {
+                "1.1_TOTAL.FINAL.ENERGY.CONSUM", // Total final energy consumption (TFEC) (TJ)
+                "2.1.1_SHARE.TRADBIO", // Solid biofuels for traditional uses share of TFEC (%)
+                "2.1.10_SHARE.MARINE", // Marine energy share of TFEC (%)
+                "2.1.2_SHARE.MODERNBIO", // Solid biofuels for modern uses share of TFEC (%)
+                "2.1.3_SHARE.HYDRO", // Hydro energy share of TFEC (%)
+                "2.1.4_SHARE.BIOFUELS", // Liquid biofuels share of TFEC (%)
+                "2.1.5_SHARE.WIND", // Wind energy share of TFEC (%)
+                "2.1.6_SHARE.SOLAR", // Solar energy share of TFEC (%)
+                "2.1.7_SHARE.GEOTHERMAL", // Geothermal energy share of TFEC (%)
+                "2.1.8_SHARE.WASTE", // Waste energy share of TFEC (%)
+                "2.1.9_SHARE.BIOGAS", // Biogas share of TFEC (%)
+                "EG.USE.COMM.FO.ZS", // Fossil fuel energy consumption (% of total)
+                "EG.FEC.RNEW.ZS", // Renewable energy consumption (% of total final energy consumption)
+                "EN.ATM.CO2E.PC" // CO2 emissions (metric tons per capita)
+        };
+
+
+        // Create a pool of threads - limits number of threads to avoid JVM crashes
+        ExecutorService executor = Executors.newFixedThreadPool(20);
+        long startTime = System.nanoTime();
+
+        // Iterate through each country
+        Log.d(TAG, "Iterating through each country....");
+        for (String countryCode : countryCodes) {
+            Country country = new Country();
+            Countries.addCountry(country);
+
+            // Iterate through each indicator for this country
+            for (String indicatorCode : indicatorCodes) {
+                Runnable dataRetrieverThread = new DataRetrieverThread(this, country, countryCode, indicatorCode);
+                executor.execute(dataRetrieverThread);
+            }
         }
+        executor.shutdown();
+
+        while (!executor.isTerminated()) { // Waits until all executor threads finished
+        }
+
+        Log.d(TAG, String.format("All threads finished (took %fs).", (System.nanoTime() - startTime)/Math.pow(10,9)));
+    }
+
+    public void displayData() {
+        for (Country country : Countries.getCountries()) {
+            Log.d(TAG, String.format("====== %s ======", country.getName()));
+
+            for (Indicator indicator : country.getIndicators()) {
+                Log.d(TAG, String.format("=== %s ===", indicator.getTitle()));
+
+                for (Value value : indicator.getValues()) {
+                    Log.d(TAG, String.format("%s | %s", value.getDate(), value.getValue()));
+                }
+            }
+        }
+        Log.d(TAG, "END OF DATA");
     }
 
     /**
      * A test chart using hard-code values.
      */
-    private void setupChart() {
+    private void setupChart(String indicatorId /*The indicator we want to show data for*/) {
 
         //TODO: If using one indicator OR one country, use pie chart. Else use another chart type.
 
@@ -82,14 +182,12 @@ public class MainActivity extends AppCompatActivity {
                 Countries.getCountry("CN")
         };
 
-        String indicatorId = "EN.ATM.CO2E.PC"; // The indicator we want to show data for
-
         // X values
-        ArrayList<String> xVals = new ArrayList<>(Arrays.asList(
+        ArrayList<String> xVals = new ArrayList<>(
+                Arrays.asList(
                 "1990",
                 "2000",
-                "2010"
-            )
+                "2010")
         );
 
         // Y values for each country
@@ -98,11 +196,11 @@ public class MainActivity extends AppCompatActivity {
         for (int c=0; c<countries.length; c++) {
             Country country = countries[c];
 
-            // DEBUG
-            Log.d(TAG, country.getId());
-            for (Indicator indicator : country.getIndicators()) {
-                Log.d(TAG, indicator.getId());
-            }
+//            DEBUG
+//            Log.d(TAG, country.getId());
+//            for (Indicator indicator : country.getIndicators()) {
+//                Log.d(TAG, indicator.getId());
+//            }
 
             ArrayList<BarEntry> barEntries = new ArrayList<>();
 
@@ -125,64 +223,4 @@ public class MainActivity extends AppCompatActivity {
         chart.invalidate(); // Refresh
     }
 
-    private void initData(){
-
-        //TODO: Pull list of countries from World Bank instead of hard-coding them
-
-        String[] indicatorCodes = {
-                "1.1_TOTAL.FINAL.ENERGY.CONSUM", // Total final energy consumption (TFEC) (TJ)
-                "2.1.1_SHARE.TRADBIO", // Solid biofuels for traditional uses share of TFEC (%)
-                "2.1.10_SHARE.MARINE", // Marine energy share of TFEC (%)
-                "2.1.2_SHARE.MODERNBIO", // Solid biofuels for modern uses share of TFEC (%)
-                "2.1.3_SHARE.HYDRO", // Hydro energy share of TFEC (%)
-                "2.1.4_SHARE.BIOFUELS", // Liquid biofuels share of TFEC (%)
-                "2.1.5_SHARE.WIND", // Wind energy share of TFEC (%)
-                "2.1.6_SHARE.SOLAR", // Solar energy share of TFEC (%)
-                "2.1.7_SHARE.GEOTHERMAL", // Geothermal energy share of TFEC (%)
-                "2.1.8_SHARE.WASTE", // Waste energy share of TFEC (%)
-                "2.1.9_SHARE.BIOGAS", // Biogas share of TFEC (%)
-                "EG.USE.COMM.FO.ZS", // Fossil fuel energy consumption (% of total)
-                "EG.FEC.RNEW.ZS", // Renewable energy consumption (% of total final energy consumption)
-                "EN.ATM.CO2E.PC" // CO2 emissions (metric tons per capita)
-        };
-
-        // Create a pool of threads - limits number of threads to avoid JVM crashes
-        ExecutorService executor = Executors.newFixedThreadPool(30);
-        long startTime = System.nanoTime();
-
-        // Iterate through each country
-        Log.d(TAG, "Iterating through each country....");
-        for (int i = 0; i < Countries.getCountries().size();++i) {
-
-            Country country = Countries.getCountry(i);
-
-            // Iterate through each indicator for this country
-            for (String indicatorCode : indicatorCodes) {
-                Runnable dataRetrieverThread = new DataRetrieverThread(country, country.getId(), indicatorCode);
-                executor.execute(dataRetrieverThread);
-            }
-        }
-        executor.shutdown();
-
-        while (!executor.isTerminated()) {
-            // Waits until all executor threads finished
-        }
-
-        Log.d(TAG, String.format("All threads finished (took %fs).", (System.nanoTime() - startTime)/Math.pow(10,9)));
-    }
-
-    public void displayData() {
-        for (Country country : Countries.getCountries()) {
-            Log.d(TAG, String.format("====== %s ======", country.getName()));
-
-            for (Indicator indicator : country.getIndicators()) {
-                Log.d(TAG, String.format("=== %s ===", indicator.getTitle()));
-
-                for (Value value : indicator.getValues()) {
-                    Log.d(TAG, String.format("%s | %s", value.getDate(), value.getValue()));
-                }
-            }
-        }
-        Log.d(TAG, "END OF DATA");
-    }
 }
