@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
         initCountries();
         initData();
-        displayData(); // Comment out when not debugging
+        //displayData(); // Comment out when not debugging
         setupChart();
     }
 
@@ -143,11 +143,10 @@ public class MainActivity extends AppCompatActivity {
                 "2.1.9_SHARE.BIOGAS", // Biogas share of TFEC (%)
                 "EG.USE.COMM.FO.ZS", // Fossil fuel energy consumption (% of total)
                 "EG.FEC.RNEW.ZS", // Renewable energy consumption (% of total final energy consumption)
-                "EN.ATM.CO2E.PC" // CO2 emissions (metric tons per capita)
         };
 
         // Create a pool of threads - limits number of threads to avoid JVM crashes
-        ExecutorService executor = Executors.newFixedThreadPool(30);
+        ExecutorService executor = Executors.newFixedThreadPool(50);
         long startTime = System.nanoTime();
 
         // Iterate through each country
