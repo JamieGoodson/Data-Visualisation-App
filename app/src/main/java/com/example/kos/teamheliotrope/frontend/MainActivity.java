@@ -3,12 +3,19 @@ package com.example.kos.teamheliotrope.frontend;
 import com.example.kos.teamheliotrope.backend.CountryInfoThread;
 import com.example.kos.teamheliotrope.backend.DataRetrieverThread;
 
+import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Html;
 import android.util.Log;
-import android.util.TypedValue;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.kos.teamheliotrope.R;
@@ -16,16 +23,19 @@ import com.example.kos.teamheliotrope.backend.Countries;
 import com.example.kos.teamheliotrope.backend.Country;
 import com.example.kos.teamheliotrope.backend.Indicator;
 import com.example.kos.teamheliotrope.backend.Value;
-import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 
 import org.json.JSONArray;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -40,19 +50,211 @@ public class MainActivity extends AppCompatActivity {
     };
     public static final String TAG = "MAIN_ACTIVITY";
     public static final String countryQuery = "http://api.worldbank.org/country?per_page=300&region=WLD&format=json";
-    BarChart chart;
+
+    protected boolean hasInternetConnection;
+
+    //Views from activity_main.xml that we need reference to
+    PieChart chart;
+    Button btnMarine,btnBiofuel,btnHydro,btnWind,btnSolar,btnGeothermal,btnWaste,btnBiogas;
+    Spinner spCountries,spYear,spIndicators;
+    TextView tvTotalEnergyConsumption,tvRenewableEnergyConsumption,tvFossilFuelEnergyConsumptionPanel,tvOtherEnergyConsumptionPanel;
+    TextView tvIndicator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_main);
 
-        chart = (BarChart) findViewById(R.id.mainChart);
+        hasInternetConnection = false;
 
-        initCountries();
-        initData();
-        //displayData(); // Comment out when not debugging
-        setupChart();
+        chart = (PieChart) findViewById(R.id.mainChart);
+        btnMarine = (Button) findViewById(R.id.btnMarine);
+        btnBiofuel = (Button) findViewById(R.id.btnBiofuel);
+        btnHydro = (Button) findViewById(R.id.btnHydro);
+        btnWind = (Button) findViewById(R.id.btnWind);
+        btnSolar = (Button) findViewById(R.id.btnSolar);
+        btnGeothermal = (Button) findViewById(R.id.btnGeothermal);
+        btnWaste = (Button) findViewById(R.id.btnWaste);
+        btnBiogas = (Button) findViewById(R.id.btnBiogas);
+
+        spCountries = (Spinner) findViewById(R.id.spCountries);
+        spYear = (Spinner) findViewById(R.id.spYear);
+        spIndicators = (Spinner) findViewById(R.id.spIndicators);
+
+        tvTotalEnergyConsumption = (TextView) findViewById(R.id.tvTotalEnergyConsumption);
+        tvRenewableEnergyConsumption = (TextView) findViewById(R.id.tvRenewableEnergyConsumption);
+        tvFossilFuelEnergyConsumptionPanel = (TextView) findViewById(R.id.tvFossilFuelEnergyConsumptionPanel);
+        tvOtherEnergyConsumptionPanel = (TextView) findViewById(R.id.tvOtherEnergyConsumptionPanel);
+
+        tvIndicator = (TextView) findViewById(R.id.tvIndicator);
+
+        //Testing internet connection
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                hasInternetConnection = hasActiveInternetConnection(MainActivity.this);
+            }
+
+            public boolean hasActiveInternetConnection(Context context) {
+                if (isNetworkAvailable(context)) {
+                    try {
+                        HttpURLConnection urlc = (HttpURLConnection) (new URL("http://www.google.com").openConnection());
+                        urlc.setRequestProperty("User-Agent", "Test");
+                        urlc.setRequestProperty("Connection", "close");
+                        urlc.setConnectTimeout(1500);
+                        urlc.connect();
+                        return (urlc.getResponseCode() == 200);
+                    } catch (IOException e) {
+                        Log.d(TAG, "Error checking internet connection", e);
+                    }
+                } else {
+                    Log.d(TAG, "No network available!");
+                }
+                return false;
+            }
+
+            private boolean isNetworkAvailable(Context context) {
+                ConnectivityManager connectivityManager
+                        = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+                return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+            }
+        });
+
+        thread.start();
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // Check if it has Internet connection
+        if (hasInternetConnection){
+            initCountries();
+            initData();
+            initSpinners();
+        }
+
+        displayData(); // Comment out when not debugging
+
+        //------------------------ATTENTION COMMENTED OUT AS IT WAS USING A BARCHART AND CAUSED A COMPILATION ERROR--------------------
+        //------------------------------------------------------FIX WHEN POSSIBLE------------------------------------------------------
+        //setupChart();
+    }
+
+    private void initSpinners(){
+        List<String> spinnerArrayCountry =  new ArrayList<String>();
+
+        for (Country country : Countries.getCountries()){
+            spinnerArrayCountry.add(country.getName());
+        }
+
+        addDataToSpinner(spCountries, spinnerArrayCountry);
+
+        spCountries.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Country selectedCountry = Countries.getCountry(position);
+
+                updateIndicatorSpinner(selectedCountry);
+
+                updateData(selectedCountry, spYear.getSelectedItemPosition() + 1960);
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+            }
+        });
+
+        List<String> spinnerArrayYear = new ArrayList<String>();
+
+        for (int i = 1960; i <= 2015; ++i){
+            spinnerArrayYear.add(String.valueOf(i));
+        }
+
+        addDataToSpinner(spYear,spinnerArrayYear);
+
+        spYear.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                updateData(Countries.getCountry(spCountries.getSelectedItemPosition()), spYear.getSelectedItemPosition() + 1960);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0) {
+            }
+        });
+    }
+
+    private void updateData(Country selectedCountry, int year){
+        float totalValue = getValueOfIndicatorCountry(selectedCountry, "1.1_TOTAL.FINAL.ENERGY.CONSUM",year);
+        if (totalValue != -1) {
+            tvTotalEnergyConsumption.setText(String.valueOf(totalValue) + " KJ");
+        } else {
+            tvTotalEnergyConsumption.setText("No data available");
+        }
+        float renewableValue = getValueOfIndicatorCountry(selectedCountry,"EG.FEC.RNEW.ZS",year);
+        if (renewableValue != -1) {
+            tvRenewableEnergyConsumption.setText(String.valueOf(renewableValue) + "%");
+        } else {
+            tvRenewableEnergyConsumption.setText("No data available");
+        }
+        float fossilValue = getValueOfIndicatorCountry(selectedCountry,"EG.USE.COMM.FO.ZS",year);
+        if (fossilValue != -1) {
+            tvFossilFuelEnergyConsumptionPanel.setText(String.valueOf(fossilValue) + "%");
+        } else {
+            tvFossilFuelEnergyConsumptionPanel.setText("No data available");
+        }
+        float otherValue = 100;
+        if (renewableValue != -1){
+            otherValue -= renewableValue;
+        }
+        if (fossilValue != -1){
+            otherValue -= fossilValue;
+        }
+
+        if (otherValue >= 0){
+            tvOtherEnergyConsumptionPanel.setText(String.valueOf(otherValue) + "%");
+        }else{
+            tvOtherEnergyConsumptionPanel.setText("0%");
+        }
+
+        //TODO: Fill in PieChart
+    }
+
+    private void addDataToSpinner(Spinner spinner, List<String> spinnerArray) {
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spinnerArray);
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+    }
+
+    private void updateIndicatorSpinner(Country selectedCountry){
+        List<String> spinnerArray = new ArrayList<String>();
+
+        ArrayList<Indicator> countryIndicators = selectedCountry.getIndicators();
+
+        for (int i = 0; i < countryIndicators.size(); ++i) {
+            spinnerArray.add(countryIndicators.get(i).getTitle());
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, spinnerArray);
+
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spIndicators.setAdapter(adapter);
+    }
+
+    private float getValueOfIndicatorCountry(Country selectedCountry,String indicatorID, int year){
+        Indicator indicator = selectedCountry.getIndicator(indicatorID);
+        if (indicator != null){
+            Value value = indicator.getValue(String.valueOf(year));
+            if (value != null){
+                return value.getValue();
+            }
+        }
+        return -1;
     }
 
     private void initCountries(){
@@ -68,6 +270,8 @@ public class MainActivity extends AppCompatActivity {
     /**
      * A test chart using hard-code values.
      */
+    /* ------------------------ATTENTION COMMENTED OUT AS IT WAS USING A BARCHART AND CAUSED A COMPILATION ERROR--------------------
+     * ------------------------------------------------------FIX WHEN POSSIBLE------------------------------------------------------
     private void setupChart() {
 
         //TODO: If using one indicator OR one country, use pie chart. Else use another chart type.
@@ -123,11 +327,9 @@ public class MainActivity extends AppCompatActivity {
         chart.setDescriptionTextSize(12);
         chart.setData(barData);
         chart.invalidate(); // Refresh
-    }
+    }*/
 
     private void initData(){
-
-        //TODO: Pull list of countries from World Bank instead of hard-coding them
 
         String[] indicatorCodes = {
                 "1.1_TOTAL.FINAL.ENERGY.CONSUM", // Total final energy consumption (TFEC) (TJ)
@@ -167,7 +369,7 @@ public class MainActivity extends AppCompatActivity {
             // Waits until all executor threads finished
         }
 
-        Log.d(TAG, String.format("All threads finished (took %fs).", (System.nanoTime() - startTime)/Math.pow(10,9)));
+        Log.d(TAG, String.format("All threads finished (took %fs).", (System.nanoTime() - startTime) / Math.pow(10, 9)));
     }
 
     public void displayData() {
