@@ -16,8 +16,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Distribution of energy sources in"
-            android:layout_alignParentLeft="true" />
+            android:text="Distribution of energy sources for"
+            android:layout_alignParentLeft="true"
+            android:textSize="36sp" />
 
         <Spinner
             android:id="@+id/spCountries"
@@ -31,16 +32,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="for"
-            android:layout_alignTop="@+id/tvDistributionOfEnergy"
-            android:layout_toRightOf="@+id/spCountries" />
+            android:text="in"
+            android:layout_below="@+id/tvDistributionOfEnergy"
+            android:textSize="36sp" />
 
         <Spinner
             android:id="@+id/spYear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/tvDistributionOfEnergy"
-            android:layout_toRightOf="@+id/tvFor" />
+            android:layout_toRightOf="@+id/tvFor"
+            android:layout_toEndOf="@+id/tvFor"
+            android:layout_alignBottom="@+id/tvFor" />
     </RelativeLayout>
 
     <LinearLayout
@@ -49,7 +51,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:layout_below="@+id/topPanel" >
+        android:layout_below="@+id/topPanel"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp">
 
         <Button
             android:id="@+id/btnMarine"
@@ -137,14 +141,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Total Energy Consumption:" />
+                    android:text="Total Energy Consumption:"
+                    android:textSize="18sp" />
 
                 <TextView
                     android:id="@+id/tvTotalEnergyConsumption"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="60030KJ"/>
+                    android:text="60030KJ"
+                    android:textSize="28sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -159,14 +165,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Percentage of Energy from Renewable Energy:" />
+                    android:text="Energy from Renewable Energy:"
+                    android:textSize="18sp" />
 
                 <TextView
                     android:id="@+id/tvRenewableEnergyConsumption"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="5.34%"/>
+                    android:text="5.34%"
+                    android:textSize="28sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -181,14 +189,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Percentage of Energy from Fossil Fuels:" />
+                    android:text="Energy from Fossil Fuels:"
+                    android:textSize="18sp" />
 
                 <TextView
                     android:id="@+id/tvFossilFuelEnergyConsumptionPanel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="85%"/>
+                    android:text="85%"
+                    android:textSize="28sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -203,14 +213,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Percentage of Energy from Other Fuels:" />
+                    android:text="Energy from Other Fuels:"
+                    android:textSize="18sp" />
 
                 <TextView
                     android:id="@+id/tvOtherEnergyConsumptionPanel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="6%"/>
+                    android:text="6%"
+                    android:textSize="28sp" />
             </LinearLayout>
 
         </LinearLayout>
@@ -223,12 +235,12 @@
             android:gravity="center"
             android:layout_weight="0.5">
 
-            <com.github.mikephil.charting.charts.PieChart
+            <com.github.mikephil.charting.charts.BarChart
                 android:id="@+id/mainChart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-            </com.github.mikephil.charting.charts.PieChart>
+            </com.github.mikephil.charting.charts.BarChart>
         </LinearLayout>
 
         <RelativeLayout

@@ -23,6 +23,7 @@ import com.example.kos.teamheliotrope.backend.Countries;
 import com.example.kos.teamheliotrope.backend.Country;
 import com.example.kos.teamheliotrope.backend.Indicator;
 import com.example.kos.teamheliotrope.backend.Value;
+import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     protected boolean hasInternetConnection;
 
     //Views from activity_main.xml that we need reference to
-    PieChart chart;
+    BarChart chart;
     Button btnMarine,btnBiofuel,btnHydro,btnWind,btnSolar,btnGeothermal,btnWaste,btnBiogas;
     Spinner spCountries,spYear,spIndicators;
     TextView tvTotalEnergyConsumption,tvRenewableEnergyConsumption,tvFossilFuelEnergyConsumptionPanel,tvOtherEnergyConsumptionPanel;
@@ -65,10 +66,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_main);
+        hideSystemUi();
 
         hasInternetConnection = false;
 
-        chart = (PieChart) findViewById(R.id.mainChart);
+        chart = (BarChart) findViewById(R.id.mainChart);
         btnMarine = (Button) findViewById(R.id.btnMarine);
         btnBiofuel = (Button) findViewById(R.id.btnBiofuel);
         btnHydro = (Button) findViewById(R.id.btnHydro);
@@ -136,11 +138,8 @@ public class MainActivity extends AppCompatActivity {
             initSpinners();
         }
 
-        displayData(); // Comment out when not debugging
-
-        //------------------------ATTENTION COMMENTED OUT AS IT WAS USING A BARCHART AND CAUSED A COMPILATION ERROR--------------------
-        //------------------------------------------------------FIX WHEN POSSIBLE------------------------------------------------------
-        //setupChart();
+        //displayData(); // Comment out when not debugging
+        setupChart();
     }
 
     private void initSpinners(){
@@ -160,7 +159,6 @@ public class MainActivity extends AppCompatActivity {
                 updateIndicatorSpinner(selectedCountry);
 
                 updateData(selectedCountry, spYear.getSelectedItemPosition() + 1960);
-
             }
 
             @Override
@@ -193,19 +191,19 @@ public class MainActivity extends AppCompatActivity {
         if (totalValue != -1) {
             tvTotalEnergyConsumption.setText(String.valueOf(totalValue) + " KJ");
         } else {
-            tvTotalEnergyConsumption.setText("No data available");
+            tvTotalEnergyConsumption.setText("No data");
         }
         float renewableValue = getValueOfIndicatorCountry(selectedCountry,"EG.FEC.RNEW.ZS",year);
         if (renewableValue != -1) {
             tvRenewableEnergyConsumption.setText(String.valueOf(renewableValue) + "%");
         } else {
-            tvRenewableEnergyConsumption.setText("No data available");
+            tvRenewableEnergyConsumption.setText("No data");
         }
         float fossilValue = getValueOfIndicatorCountry(selectedCountry,"EG.USE.COMM.FO.ZS",year);
         if (fossilValue != -1) {
             tvFossilFuelEnergyConsumptionPanel.setText(String.valueOf(fossilValue) + "%");
         } else {
-            tvFossilFuelEnergyConsumptionPanel.setText("No data available");
+            tvFossilFuelEnergyConsumptionPanel.setText("No data");
         }
         float otherValue = 100;
         if (renewableValue != -1){
@@ -270,8 +268,6 @@ public class MainActivity extends AppCompatActivity {
     /**
      * A test chart using hard-code values.
      */
-    /* ------------------------ATTENTION COMMENTED OUT AS IT WAS USING A BARCHART AND CAUSED A COMPILATION ERROR--------------------
-     * ------------------------------------------------------FIX WHEN POSSIBLE------------------------------------------------------
     private void setupChart() {
 
         //TODO: If using one indicator OR one country, use pie chart. Else use another chart type.
@@ -286,7 +282,7 @@ public class MainActivity extends AppCompatActivity {
                 Countries.getCountry("CN")
         };
 
-        String indicatorId = "EN.ATM.CO2E.PC"; // The indicator we want to show data for
+        String indicatorId = "1.1_TOTAL.FINAL.ENERGY.CONSUM"; // The indicator we want to show data for
 
         // X values
         ArrayList<String> xVals = new ArrayList<>(Arrays.asList(
@@ -327,7 +323,7 @@ public class MainActivity extends AppCompatActivity {
         chart.setDescriptionTextSize(12);
         chart.setData(barData);
         chart.invalidate(); // Refresh
-    }*/
+    }
 
     private void initData(){
 
@@ -385,5 +381,15 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         Log.d(TAG, "END OF DATA");
+    }
+
+    public void hideSystemUi() {
+        findViewById(android.R.id.content).setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE);
     }
 }

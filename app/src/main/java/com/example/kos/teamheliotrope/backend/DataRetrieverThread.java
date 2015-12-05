@@ -119,7 +119,7 @@ public class DataRetrieverThread extends Thread {
                 date = dataForThisYear.getString("date");
                 value = dataForThisYear.getString("value");
 
-                if (!value.equals("null")) { // Skip null values
+                if ((!value.equals("null")) && (Integer.parseInt(date) >= 1990)) { // Skip null and pre-1990 values (pre-1990 has lots of holes in data)
                     indicator.addValue(new Value(date, Float.parseFloat(value)));
                 }
             }
