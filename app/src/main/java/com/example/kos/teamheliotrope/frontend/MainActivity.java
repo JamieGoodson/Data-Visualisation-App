@@ -9,6 +9,7 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -85,11 +86,35 @@ public class MainActivity extends AppCompatActivity {
     public AlertDialog loadingDialog;
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume triggered.");
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_main);
         hideSystemUi();
+
+        // Keep UI hidden
+        View decorView = getWindow().getDecorView();
+        decorView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
+            @Override
+            public void onSystemUiVisibilityChange(int visibility) {
+                if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+                    // System UI is visible, hide it after delay
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            hideSystemUi();
+                        }
+                    }, 1000);
+                }
+            }
+        });
 
         hasInternetConnection = false;
 
