@@ -28,10 +28,14 @@ import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
 
 import org.json.JSONArray;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -51,18 +55,37 @@ public class MainActivity extends AppCompatActivity {
     };
     public static final String TAG = "MAIN_ACTIVITY";
     public static final String countryQuery = "http://api.worldbank.org/country?per_page=300&region=WLD&format=json";
+    private final String[] indicatorIds = {
+            "1.1_TOTAL.FINAL.ENERGY.CONSUM", // Total final energy consumption (TFEC) (TJ)
+            "EG.FEC.RNEW.ZS", // Renewable energy consumption (% of total final energy consumption)
+            "2.1.1_SHARE.TRADBIO", // Solid biofuels for traditional uses share of TFEC (%)
+            "2.1.10_SHARE.MARINE", // Marine energy share of TFEC (%)
+            "2.1.2_SHARE.MODERNBIO", // Solid biofuels for modern uses share of TFEC (%)
+            "2.1.3_SHARE.HYDRO", // Hydro energy share of TFEC (%)
+            "2.1.4_SHARE.BIOFUELS", // Liquid biofuels share of TFEC (%)
+            "2.1.5_SHARE.WIND", // Wind energy share of TFEC (%)
+            "2.1.6_SHARE.SOLAR", // Solar energy share of TFEC (%)
+            "2.1.7_SHARE.GEOTHERMAL", // Geothermal energy share of TFEC (%)
+            "2.1.8_SHARE.WASTE", // Waste energy share of TFEC (%)
+            "2.1.9_SHARE.BIOGAS", // Biogas share of TFEC (%)
+            "EG.USE.COMM.FO.ZS", // Fossil fuel energy consumption (% of total)
+            "EG.USE.COMM.CL.ZS" // Alternative and nuclear energy (% of total energy use)
+    };
 
     protected boolean hasInternetConnection;
 
     //Views from activity_main.xml that we need reference to
-    BarChart chart;
-    Button btnMarine,btnBiofuel,btnHydro,btnWind,btnSolar,btnGeothermal,btnWaste,btnBiogas;
+    PieChart chart;
+    EnergyButton[] energyButtons;
     Spinner spCountries,spYear,spIndicators;
     TextView tvTotalEnergyConsumption,tvRenewableEnergyConsumption,tvFossilFuelEnergyConsumptionPanel,tvOtherEnergyConsumptionPanel;
     TextView tvIndicator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        //TODO: Add option to UI to show/hide renewable and non-renewable sources on pie chart
+
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_main);
@@ -70,15 +93,20 @@ public class MainActivity extends AppCompatActivity {
 
         hasInternetConnection = false;
 
-        chart = (BarChart) findViewById(R.id.mainChart);
-        btnMarine = (Button) findViewById(R.id.btnMarine);
-        btnBiofuel = (Button) findViewById(R.id.btnBiofuel);
-        btnHydro = (Button) findViewById(R.id.btnHydro);
-        btnWind = (Button) findViewById(R.id.btnWind);
-        btnSolar = (Button) findViewById(R.id.btnSolar);
-        btnGeothermal = (Button) findViewById(R.id.btnGeothermal);
-        btnWaste = (Button) findViewById(R.id.btnWaste);
-        btnBiogas = (Button) findViewById(R.id.btnBiogas);
+        chart = (PieChart) findViewById(R.id.mainChart);
+
+        energyButtons = new EnergyButton[] {
+                new EnergyButton((Button) findViewById(R.id.btnFossil), "EG.USE.COMM.FO.ZS"),
+                new EnergyButton((Button) findViewById(R.id.btnNuclear), "EG.USE.COMM.CL.ZS"),
+                new EnergyButton((Button) findViewById(R.id.btnMarine), "2.1.10_SHARE.MARINE"),
+                new EnergyButton((Button) findViewById(R.id.btnBiofuel), "2.1.4_SHARE.BIOFUELS"),
+                new EnergyButton((Button) findViewById(R.id.btnHydro), "2.1.3_SHARE.HYDRO"),
+                new EnergyButton((Button) findViewById(R.id.btnWind), "2.1.5_SHARE.WIND"),
+                new EnergyButton((Button) findViewById(R.id.btnSolar), "2.1.6_SHARE.SOLAR"),
+                new EnergyButton((Button) findViewById(R.id.btnGeothermal), "2.1.7_SHARE.GEOTHERMAL"),
+                new EnergyButton((Button) findViewById(R.id.btnWaste), "2.1.8_SHARE.WASTE"),
+                new EnergyButton((Button) findViewById(R.id.btnBiogas), "2.1.9_SHARE.BIOGAS")
+        };
 
         spCountries = (Spinner) findViewById(R.id.spCountries);
         spYear = (Spinner) findViewById(R.id.spYear);
@@ -142,6 +170,20 @@ public class MainActivity extends AppCompatActivity {
         setupChart();
     }
 
+    /**
+     * Toggles button by adjusting transparency (but does not actually disable). Chart is then reinitialised.
+     * @param v A button
+     */
+    public void toggleButton(View v) {
+        Button button = (Button) v;
+        if (button.getAlpha() == 1) {
+            button.setAlpha(0.5f);
+        } else {
+            button.setAlpha(1);
+        }
+        setupChart();
+    }
+
     private void initSpinners(){
         List<String> spinnerArrayCountry =  new ArrayList<String>();
 
@@ -152,13 +194,20 @@ public class MainActivity extends AppCompatActivity {
         addDataToSpinner(spCountries, spinnerArrayCountry);
 
         spCountries.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            boolean firstLoad = true;
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 Country selectedCountry = Countries.getCountry(position);
 
                 updateIndicatorSpinner(selectedCountry);
 
-                updateData(selectedCountry, spYear.getSelectedItemPosition() + 1960);
+                updateData(selectedCountry, spYear.getSelectedItemPosition() + 1990);
+
+                if (firstLoad) {
+                    firstLoad = false;
+                } else {
+                    setupChart();
+                }
             }
 
             @Override
@@ -168,16 +217,24 @@ public class MainActivity extends AppCompatActivity {
 
         List<String> spinnerArrayYear = new ArrayList<String>();
 
-        for (int i = 1960; i <= 2015; ++i){
+        for (int i = 1990; i <= 2015; ++i){
             spinnerArrayYear.add(String.valueOf(i));
         }
 
         addDataToSpinner(spYear,spinnerArrayYear);
 
         spYear.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            boolean firstLoad = true;
+
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                updateData(Countries.getCountry(spCountries.getSelectedItemPosition()), spYear.getSelectedItemPosition() + 1960);
+                updateData(Countries.getCountry(spCountries.getSelectedItemPosition()), spYear.getSelectedItemPosition() + 1990);
+
+                if (firstLoad) {
+                    firstLoad = false;
+                } else {
+                    setupChart();
+                }
             }
 
             @Override
@@ -189,19 +246,19 @@ public class MainActivity extends AppCompatActivity {
     private void updateData(Country selectedCountry, int year){
         float totalValue = getValueOfIndicatorCountry(selectedCountry, "1.1_TOTAL.FINAL.ENERGY.CONSUM",year);
         if (totalValue != -1) {
-            tvTotalEnergyConsumption.setText(String.valueOf(totalValue) + " KJ");
+            tvTotalEnergyConsumption.setText(String.format("%d", Math.round(totalValue)) + " KJ");
         } else {
             tvTotalEnergyConsumption.setText("No data");
         }
         float renewableValue = getValueOfIndicatorCountry(selectedCountry,"EG.FEC.RNEW.ZS",year);
         if (renewableValue != -1) {
-            tvRenewableEnergyConsumption.setText(String.valueOf(renewableValue) + "%");
+            tvRenewableEnergyConsumption.setText(String.format("%.2f", renewableValue) + "%");
         } else {
             tvRenewableEnergyConsumption.setText("No data");
         }
         float fossilValue = getValueOfIndicatorCountry(selectedCountry,"EG.USE.COMM.FO.ZS",year);
         if (fossilValue != -1) {
-            tvFossilFuelEnergyConsumptionPanel.setText(String.valueOf(fossilValue) + "%");
+            tvFossilFuelEnergyConsumptionPanel.setText(String.format("%.2f", fossilValue) + "%");
         } else {
             tvFossilFuelEnergyConsumptionPanel.setText("No data");
         }
@@ -214,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (otherValue >= 0){
-            tvOtherEnergyConsumptionPanel.setText(String.valueOf(otherValue) + "%");
+            tvOtherEnergyConsumptionPanel.setText(String.format("%.2f", otherValue) + "%");
         }else{
             tvOtherEnergyConsumptionPanel.setText("0%");
         }
@@ -265,83 +322,91 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * A test chart using hard-code values.
-     */
-    private void setupChart() {
-
-        //TODO: If using one indicator OR one country, use pie chart. Else use another chart type.
-
-        //TODO: Handle what happens when user requests values that do not exist for that indicator (e.g. no values for year 1993)
-
-        // Get countries
-        Log.d(TAG, "" + Countries.getCountries().size());
-        Country[] countries = {
-                Countries.getCountry("GB"),
-                Countries.getCountry("US"),
-                Countries.getCountry("CN")
+    private void setupChartTest() {
+        // X values
+        String[] xVals = {
+                "Protein",
+                "Carbohydrates",
+                "Fats"
         };
 
-        String indicatorId = "1.1_TOTAL.FINAL.ENERGY.CONSUM"; // The indicator we want to show data for
+        int[] dummyValues = {10,50,30};
 
-        // X values
-        ArrayList<String> xVals = new ArrayList<>(Arrays.asList(
-                "1990",
-                "2000",
-                "2010"
-            )
-        );
+        // Y values
+        ArrayList<Entry> entries = new ArrayList<>();
+        for (int i=0; i<xVals.length; i++) {
 
-        // Y values for each country
-        ArrayList<BarDataSet> barDataSets = new ArrayList<>();
-
-        for (int c=0; c<countries.length; c++) {
-            Country country = countries[c];
-
-            // DEBUG
-            Log.d(TAG, country.getId());
-            for (Indicator indicator : country.getIndicators()) {
-                Log.d(TAG, indicator.getId());
-            }
-
-            ArrayList<BarEntry> barEntries = new ArrayList<>();
-
-            for (int i=0; i<xVals.size(); i++) {
-                barEntries.add(new BarEntry(country.getIndicator(indicatorId).getValue(xVals.get(i)).getValue(), i));
-            }
-
-            BarDataSet barDataSet = new BarDataSet(barEntries, country.getName());
-            barDataSet.setColor(colors[c % colors.length]); // If possible, use different color for each country
-            barDataSets.add(barDataSet);
+            entries.add(new Entry(dummyValues[i], i));
         }
 
-        // Combine X + Y values
-        BarData barData = new BarData(new ArrayList<>(xVals), barDataSets);
+        PieDataSet dataSet = new PieDataSet(entries, "Test data set");
+        dataSet.setColors(colors);
+        PieData data = new PieData(xVals, dataSet);
+        chart.setData(data);
+    }
 
-        // Set data
-        chart.setDescription(Countries.getCountry(0).getIndicator(indicatorId).getTitle());
-        chart.setDescriptionTextSize(12);
-        chart.setData(barData);
-        chart.invalidate(); // Refresh
+    private void setupChart() {
+        Country country = Countries.getCountry(spCountries.getSelectedItem().toString());
+        Log.d(TAG, "Country: " + country.getName());
+        String date = spYear.getSelectedItem().toString();
+        Log.d(TAG, "Date: "+ date);
+
+        // Build a list of all selected indicator ids
+        ArrayList<String> selectedIndicatorIds = new ArrayList<>();
+        for (EnergyButton energyButton : energyButtons) {
+            if (energyButton.getButton().getAlpha() == 1) {
+                selectedIndicatorIds.add(energyButton.getIndicatorId());
+            }
+        }
+
+        // X values - Setup list of indicators we want to use for chart
+        ArrayList<Float> values = new ArrayList<>();
+        ArrayList<String> xVals = new ArrayList<>();
+        for (Indicator indicator : country.getIndicators()) {
+            String indicatorId = indicator.getId();
+            if (selectedIndicatorIds.contains(indicatorId)) {
+                String indicatorTitle = indicator.getTitle();
+                Value indicatorValue = indicator.getValue(date);
+
+                xVals.add(indicator.getTitle());
+
+                // Skip null values
+                float value = 0f;
+                if (indicatorValue != null) {
+                    value = indicatorValue.getValue();
+                    values.add(value);
+                } else {
+                    values.add(value);
+                    Log.d(TAG, "Null value found. setting to 0.");
+                }
+
+                Log.d(TAG, String.format("Indicator: %s | Value at this date: %f | Number of values: %d", indicatorTitle, value, indicator.getValues().size()));
+            }
+        }
+
+        // Y values - Get values for each indicator
+        float total = 0f;
+        ArrayList<Entry> entries = new ArrayList<>();
+        for (int i=0; i<xVals.size(); i++) {
+            float value = values.get(i);
+            entries.add(new Entry(value, i));
+
+            total += value;
+        }
+
+        Log.d(TAG, "Total value for pie chart: " + total);
+
+        PieDataSet dataSet = new PieDataSet(entries, "Test data set");
+        dataSet.setColors(colors);
+        PieData data = new PieData(xVals, dataSet);
+        chart.setData(data);
+        chart.setCenterText("Test");
+        chart.setCenterTextSize(40);
+        //chart.invalidate(); // Refresh
+        chart.animateXY(500, 500); // Animates and refreshes
     }
 
     private void initData(){
-
-        String[] indicatorCodes = {
-                "1.1_TOTAL.FINAL.ENERGY.CONSUM", // Total final energy consumption (TFEC) (TJ)
-                "2.1.1_SHARE.TRADBIO", // Solid biofuels for traditional uses share of TFEC (%)
-                "2.1.10_SHARE.MARINE", // Marine energy share of TFEC (%)
-                "2.1.2_SHARE.MODERNBIO", // Solid biofuels for modern uses share of TFEC (%)
-                "2.1.3_SHARE.HYDRO", // Hydro energy share of TFEC (%)
-                "2.1.4_SHARE.BIOFUELS", // Liquid biofuels share of TFEC (%)
-                "2.1.5_SHARE.WIND", // Wind energy share of TFEC (%)
-                "2.1.6_SHARE.SOLAR", // Solar energy share of TFEC (%)
-                "2.1.7_SHARE.GEOTHERMAL", // Geothermal energy share of TFEC (%)
-                "2.1.8_SHARE.WASTE", // Waste energy share of TFEC (%)
-                "2.1.9_SHARE.BIOGAS", // Biogas share of TFEC (%)
-                "EG.USE.COMM.FO.ZS", // Fossil fuel energy consumption (% of total)
-                "EG.FEC.RNEW.ZS", // Renewable energy consumption (% of total final energy consumption)
-        };
 
         // Create a pool of threads - limits number of threads to avoid JVM crashes
         ExecutorService executor = Executors.newFixedThreadPool(50);
@@ -354,8 +419,8 @@ public class MainActivity extends AppCompatActivity {
             Country country = Countries.getCountry(i);
 
             // Iterate through each indicator for this country
-            for (String indicatorCode : indicatorCodes) {
-                Runnable dataRetrieverThread = new DataRetrieverThread(country, country.getId(), indicatorCode);
+            for (String indicatorId : indicatorIds) {
+                Runnable dataRetrieverThread = new DataRetrieverThread(country, country.getId(), indicatorId);
                 executor.execute(dataRetrieverThread);
             }
         }
