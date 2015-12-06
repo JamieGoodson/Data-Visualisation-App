@@ -52,6 +52,13 @@ public class MainActivity extends AppCompatActivity {
             Color.parseColor("#2196F3"), // blue
             Color.parseColor("#FF9800"), // orange
             Color.parseColor("#795548"), // brown
+            Color.parseColor("#009688"), // teal
+            Color.parseColor("#CDDC39"), // lime
+            Color.parseColor("#FFEB3B"), // yellow
+            Color.parseColor("#E91E63"), // pink
+            Color.parseColor("#9C27B0"), // purple
+            Color.parseColor("#9E9E9E"), // grey
+            Color.parseColor("#3F51B5") // indigo
     };
     public static final String TAG = "MAIN_ACTIVITY";
     public static final String countryQuery = "http://api.worldbank.org/country?per_page=300&region=WLD&format=json";
@@ -243,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateData(Country selectedCountry, int year){
         float totalValue = getValueOfIndicatorCountry(selectedCountry, "1.1_TOTAL.FINAL.ENERGY.CONSUM",year);
         if (totalValue != -1) {
-            tvTotalEnergyConsumption.setText(String.format("%d", Math.round(totalValue)) + " KJ");
+            tvTotalEnergyConsumption.setText(String.format("%d", Math.round(totalValue)) + " kJ");
         } else {
             tvTotalEnergyConsumption.setText("No data");
         }
@@ -358,6 +365,8 @@ public class MainActivity extends AppCompatActivity {
 
         // X values - Setup list of indicators we want to use for chart
         //TODO: Add segment to pie chart that displays percentage we didn't have data for (null values)
+        //TODO: Don't bother displaying values equal to 0.
+
         ArrayList<Float> values = new ArrayList<>();
         ArrayList<String> xVals = new ArrayList<>();
         for (Indicator indicator : country.getIndicators()) {
@@ -366,7 +375,13 @@ public class MainActivity extends AppCompatActivity {
                 String indicatorTitle = indicator.getTitle();
                 Value indicatorValue = indicator.getValue(date);
 
-                xVals.add(indicator.getTitle());
+                indicatorTitle = indicator.getTitle();
+
+                if (indicatorTitle.length() > 12) {
+                    xVals.add(indicatorTitle.substring(0, 12) + "...");
+                } else {
+                    xVals.add(indicatorTitle);
+                }
 
                 // Skip null values
                 float value = 0f;

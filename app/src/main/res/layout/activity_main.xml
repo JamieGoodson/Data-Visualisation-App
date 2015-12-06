@@ -5,24 +5,25 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity">
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/topPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal">
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
 
         <TextView
             android:id="@+id/tvDistributionOfEnergy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Distribution of energy sources for"
+            android:text="Energy consumption in"
             android:layout_alignParentLeft="true"
             android:textSize="36sp" />
 
         <Spinner
             android:id="@+id/spCountries"
-            android:layout_width="wrap_content"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/tvDistributionOfEnergy"
             android:layout_toRightOf="@+id/tvDistributionOfEnergy" />
@@ -43,7 +44,7 @@
             android:layout_toRightOf="@+id/tvFor"
             android:layout_toEndOf="@+id/tvFor"
             android:layout_alignBottom="@+id/tvFor" />
-    </RelativeLayout>
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/iconPanel"
