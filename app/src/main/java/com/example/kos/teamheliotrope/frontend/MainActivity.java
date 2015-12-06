@@ -25,23 +25,15 @@ import com.example.kos.teamheliotrope.backend.Countries;
 import com.example.kos.teamheliotrope.backend.Country;
 import com.example.kos.teamheliotrope.backend.Indicator;
 import com.example.kos.teamheliotrope.backend.Value;
-import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.data.BarData;
-import com.github.mikephil.charting.data.BarDataSet;
-import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 
-import org.json.JSONArray;
-
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -182,6 +174,13 @@ public class MainActivity extends AppCompatActivity {
                         public void run() {
                             initSpinners();
                             setupChart();
+
+                            chart.getLegend().setEnabled(false);
+                            chart.setDescription("*values are % of TFEC");
+                            chart.setDescriptionTextSize(20);
+                            //chart.setCenterText("Test");
+                            //chart.setCenterTextSize(40);
+
                             loadingDialog.dismiss();
                         }
                     });
@@ -204,7 +203,6 @@ public class MainActivity extends AppCompatActivity {
             button.setAlpha(1);
         }
         setupChart();
-        chart.getLegend().setEnabled(false);
     }
 
     private void initSpinners(){
@@ -241,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
 
         List<String> spinnerArrayYear = new ArrayList<String>();
 
-        for (int i = 1990; i <= 2015; ++i){
+        for (int i = 1990; i <= 2012; ++i){
             spinnerArrayYear.add(String.valueOf(i));
         }
 
@@ -305,7 +303,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addDataToSpinner(Spinner spinner, List<String> spinnerArray) {
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, spinnerArray);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.title_spinner_item, spinnerArray);
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
@@ -444,10 +442,9 @@ public class MainActivity extends AppCompatActivity {
 
         PieDataSet dataSet = new PieDataSet(entries, "Test data set");
         dataSet.setColors(colors);
+        dataSet.setValueTextSize(14);
         PieData data = new PieData(xVals, dataSet);
         chart.setData(data);
-        chart.setCenterText("Test");
-        chart.setCenterTextSize(40);
         //chart.invalidate(); // Refresh
         chart.animateXY(500, 500); // Animates and refreshes
     }
@@ -455,7 +452,7 @@ public class MainActivity extends AppCompatActivity {
     private void initData(){
 
         // Create a pool of threads - limits number of threads to avoid JVM crashes
-        ExecutorService executor = Executors.newFixedThreadPool(50);
+        ExecutorService executor = Executors.newFixedThreadPool(40);
         long startTime = System.nanoTime();
 
         // Iterate through each country

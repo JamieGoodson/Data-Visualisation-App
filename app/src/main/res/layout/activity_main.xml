@@ -19,14 +19,16 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Energy consumption in"
             android:layout_alignParentLeft="true"
-            android:textSize="36sp" />
+            android:textSize="36sp"
+            android:layout_gravity="center" />
 
         <Spinner
             android:id="@+id/spCountries"
-            android:layout_width="200dp"
+            android:layout_width="320dp"
             android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/tvDistributionOfEnergy"
-            android:layout_toRightOf="@+id/tvDistributionOfEnergy" />
+            android:layout_toRightOf="@+id/tvDistributionOfEnergy"
+            android:layout_gravity="center" />
 
         <TextView
             android:id="@+id/tvFor"
@@ -35,7 +37,8 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="in"
             android:layout_below="@+id/tvDistributionOfEnergy"
-            android:textSize="36sp" />
+            android:textSize="36sp"
+            android:layout_gravity="center" />
 
         <Spinner
             android:id="@+id/spYear"
@@ -174,7 +177,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="60030KJ"
+                    android:text="0 kJ"
                     android:textSize="28sp" />
             </LinearLayout>
 
@@ -198,7 +201,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="5.34%"
+                    android:text="0%"
                     android:textSize="28sp" />
             </LinearLayout>
 
@@ -222,7 +225,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="85%"
+                    android:text="0%"
                     android:textSize="28sp" />
             </LinearLayout>
 
@@ -246,7 +249,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="6%"
+                    android:text="0%"
                     android:textSize="28sp" />
             </LinearLayout>
 
