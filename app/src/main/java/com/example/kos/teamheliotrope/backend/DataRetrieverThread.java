@@ -1,5 +1,7 @@
 package com.example.kos.teamheliotrope.backend;
 
+import android.content.Context;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.example.kos.teamheliotrope.frontend.MainActivity;
@@ -18,6 +20,7 @@ import java.net.URL;
 
 public class DataRetrieverThread extends Thread {
     final static String TAG = "RETRIEVER_THREAD";
+    MainActivity activity;
     JSONArray jsonArray;
     Country country;
     String query;
@@ -25,7 +28,8 @@ public class DataRetrieverThread extends Thread {
     String indicatorCode;
 
 
-    public DataRetrieverThread(Country country, String countryCode, String indicatorCode) {
+    public DataRetrieverThread(MainActivity activity, Country country, String countryCode, String indicatorCode) {
+        this.activity = activity;
         this.country = country;
         this.indicatorCode = indicatorCode;
         this.countryCode = countryCode;
@@ -36,6 +40,14 @@ public class DataRetrieverThread extends Thread {
     @Override
     public void run() {
         Log.d(TAG, String.format("Starting thread for %s, %s (%s)...", countryCode, indicatorCode, query));
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                activity.loadingDialog.setMessage("Fetching data for " + country.getName());
+            }
+        });
+
         jsonArray = fetchJSONArray();
         processJSONArray();
     }

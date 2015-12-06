@@ -3,6 +3,7 @@ package com.example.kos.teamheliotrope.frontend;
 import com.example.kos.teamheliotrope.backend.CountryInfoThread;
 import com.example.kos.teamheliotrope.backend.DataRetrieverThread;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
@@ -16,6 +17,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.example.kos.teamheliotrope.R;
@@ -87,6 +89,8 @@ public class MainActivity extends AppCompatActivity {
     Spinner spCountries,spYear,spIndicators;
     TextView tvTotalEnergyConsumption,tvRenewableEnergyConsumption,tvFossilFuelEnergyConsumptionPanel,tvOtherEnergyConsumptionPanel;
     TextView tvIndicator;
+
+    public AlertDialog loadingDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,15 +167,29 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        // Check if it has Internet connection
-        if (hasInternetConnection){
-            initCountries();
-            initData();
-            initSpinners();
-        }
+        loadingDialog = new AlertDialog.Builder(this).setTitle("Loading...").setMessage("Initialising...").setCancelable(false).show();
 
-        //displayData(); // Comment out when not debugging
-        setupChart();
+        new Thread() {
+            @Override
+            public void run() {
+                // Check if it has Internet connection
+                if (hasInternetConnection){
+                    initCountries();
+                    initData();
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            initSpinners();
+                            setupChart();
+                            loadingDialog.dismiss();
+                        }
+                    });
+                }
+
+                //displayData(); // Comment out when not debugging
+            }
+        }.start();
     }
 
     /**
@@ -186,6 +204,7 @@ public class MainActivity extends AppCompatActivity {
             button.setAlpha(1);
         }
         setupChart();
+        chart.getLegend().setEnabled(false);
     }
 
     private void initSpinners(){
@@ -196,6 +215,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         addDataToSpinner(spCountries, spinnerArrayCountry);
+        spCountries.setSelection(getSpinnerIndexOf(spCountries, "United Kingdom")); // Set default selection
 
         spCountries.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             boolean firstLoad = true;
@@ -226,6 +246,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         addDataToSpinner(spYear,spinnerArrayYear);
+        spYear.setSelection(getSpinnerIndexOf(spYear, "2009")); // Set default selection
 
         spYear.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             boolean firstLoad = true;
@@ -288,6 +309,18 @@ public class MainActivity extends AppCompatActivity {
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
+    }
+
+    private int getSpinnerIndexOf(Spinner spinner, String value) {
+        SpinnerAdapter adapter = spinner.getAdapter();
+
+        for (int i=0; i<adapter.getCount(); i++) {
+            if (adapter.getItem(i).equals(value)) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     private void updateIndicatorSpinner(Country selectedCountry){
@@ -429,11 +462,11 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "Iterating through each country....");
         for (int i = 0; i < Countries.getCountries().size();++i) {
 
-            Country country = Countries.getCountry(i);
+            final Country country = Countries.getCountry(i);
 
             // Iterate through each indicator for this country
             for (String indicatorId : indicatorIds) {
-                Runnable dataRetrieverThread = new DataRetrieverThread(country, country.getId(), indicatorId);
+                Runnable dataRetrieverThread = new DataRetrieverThread(this, country, country.getId(), indicatorId);
                 executor.execute(dataRetrieverThread);
             }
         }
