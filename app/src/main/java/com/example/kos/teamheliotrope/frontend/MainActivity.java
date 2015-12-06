@@ -83,9 +83,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        //TODO: Add option to UI to show/hide renewable and non-renewable sources on pie chart
-
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_main);
@@ -360,6 +357,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // X values - Setup list of indicators we want to use for chart
+        //TODO: Add segment to pie chart that displays percentage we didn't have data for (null values)
         ArrayList<Float> values = new ArrayList<>();
         ArrayList<String> xVals = new ArrayList<>();
         for (Indicator indicator : country.getIndicators()) {
