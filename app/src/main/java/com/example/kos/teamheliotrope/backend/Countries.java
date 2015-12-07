@@ -6,7 +6,8 @@ import java.util.ArrayList;
  * Static class that maintains a collection of all the Countries getting data for
  */
 public class Countries {
-    static ArrayList<Country> countries = new ArrayList<>();
+
+   public static ArrayList<Country> countries = new ArrayList<>();
 
     /**
      * Adds a country to the collection of countries
