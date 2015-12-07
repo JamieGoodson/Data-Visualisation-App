@@ -1,8 +1,9 @@
 package com.example.kos.teamheliotrope.backend;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 
-public class Value {
+public class Value implements Serializable {
     public static final String TAG = "VALUE";
     String date;
     Float value;

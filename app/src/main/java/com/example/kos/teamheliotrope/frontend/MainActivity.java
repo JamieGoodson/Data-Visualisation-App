@@ -31,7 +31,21 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -40,6 +54,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
+
+    File cDir;
+    File fDir;
+
     public static final int[] colors = {
             // Android color guidelines: https://www.google.com/design/spec/style/color.html
             Color.parseColor("#F44336"), // red
@@ -97,6 +115,9 @@ public class MainActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_main);
         hideSystemUi();
+
+        cDir = getApplicationContext().getCacheDir();
+        fDir = getApplicationContext().getCacheDir();
 
         // Keep UI hidden
         View decorView = getWindow().getDecorView();
@@ -491,11 +512,68 @@ public class MainActivity extends AppCompatActivity {
                 Runnable dataRetrieverThread = new DataRetrieverThread(this, country, country.getId(), indicatorId);
                 executor.execute(dataRetrieverThread);
             }
+
+
         }
         executor.shutdown();
 
         while (!executor.isTerminated()) {
             // Waits until all executor threads finished
+        }
+
+        for (Country country : Countries.getCountries()){
+            File tempFile = null;
+            try {
+                tempFile = File.createTempFile(country.getName(), null, cDir);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            File tempFile2 = new File(fDir, country.getName() + ".txt");
+            String tempFileName = tempFile.getName().toString();
+
+            try {
+                OutputStream fos = new BufferedOutputStream(new FileOutputStream(tempFile));
+                ObjectOutputStream oos = new ObjectOutputStream(fos);
+                oos.writeObject(country);
+                //fos.close();
+                oos.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            // for loop that outputs the whole text of a file.
+            // country Object
+            Log.d("COUNTRY", country.getName());
+            // tempFile Object
+
+            Country ctry = null;
+
+            try {
+                InputStream fileInput = new BufferedInputStream(new FileInputStream(tempFile));
+                ObjectInputStream ois = new ObjectInputStream(fileInput);
+
+                ctry = (Country) ois.readObject();
+                ois.close();
+                Log.d("TEMPFILE", ctry.toString());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            Log.d("TEMPFILE", ctry.getName());
+
+
+            FileWriter fw  = null;
+            try {
+                fw = new FileWriter(tempFile2);
+
+                // saving contents to a file
+                fw.write(tempFileName);
+                fw.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         }
 
         Log.d(TAG, String.format("All threads finished (took %fs).", (System.nanoTime() - startTime) / Math.pow(10, 9)));

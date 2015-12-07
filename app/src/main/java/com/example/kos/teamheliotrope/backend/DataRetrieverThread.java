@@ -12,6 +12,7 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -33,6 +34,7 @@ public class DataRetrieverThread extends Thread {
         this.country = country;
         this.indicatorCode = indicatorCode;
         this.countryCode = countryCode;
+
         // IMPORTANT! Make sure the per page part of the JSONQuery is set to 13888 as that's the maximum number of results we could receive in a page
         this.query = "http://api.worldbank.org/countries/" + this.countryCode + "/indicators/" + this.indicatorCode + "?per_page=13888&date=1960:2015&format=json";
     }
