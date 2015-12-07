@@ -87,7 +87,6 @@ public class MainActivity extends AppCompatActivity {
     EnergyButton[] energyButtons;
     Spinner spCountries,spYear,spIndicators;
     TextView tvTotalEnergyConsumption,tvRenewableEnergyConsumption,tvFossilFuelEnergyConsumptionPanel,tvOtherEnergyConsumptionPanel;
-    TextView tvIndicator;
 
     public AlertDialog loadingDialog;
 
@@ -141,14 +140,11 @@ public class MainActivity extends AppCompatActivity {
 
         spCountries = (Spinner) findViewById(R.id.spCountries);
         spYear = (Spinner) findViewById(R.id.spYear);
-        spIndicators = (Spinner) findViewById(R.id.spIndicators);
 
         tvTotalEnergyConsumption = (TextView) findViewById(R.id.tvTotalEnergyConsumption);
         tvRenewableEnergyConsumption = (TextView) findViewById(R.id.tvRenewableEnergyConsumption);
         tvFossilFuelEnergyConsumptionPanel = (TextView) findViewById(R.id.tvFossilFuelEnergyConsumptionPanel);
         tvOtherEnergyConsumptionPanel = (TextView) findViewById(R.id.tvOtherEnergyConsumptionPanel);
-
-        tvIndicator = (TextView) findViewById(R.id.tvIndicator);
 
         //Testing internet connection
         Thread thread = new Thread(new Runnable() {
@@ -403,6 +399,7 @@ public class MainActivity extends AppCompatActivity {
 
             Value value = country.getIndicator(energyButton.getIndicatorId()).getValue(date);
 
+            // TODO: Add slice to chart that represents missing data (to prevent misrepresentation of data)
             // Skip null values
             if (value != null) {
                 slices.add(new SliceValue(
