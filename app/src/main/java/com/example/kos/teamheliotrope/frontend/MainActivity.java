@@ -35,9 +35,15 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import lecho.lib.hellocharts.model.ChartData;
+import lecho.lib.hellocharts.model.PieChartData;
+import lecho.lib.hellocharts.model.SliceValue;
+import lecho.lib.hellocharts.view.PieChartView;
 
 public class MainActivity extends AppCompatActivity {
     public static final int[] colors = {
@@ -77,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
     protected boolean hasInternetConnection;
 
     //Views from activity_main.xml that we need reference to
-    PieChart chart;
+    PieChartView chart;
     EnergyButton[] energyButtons;
     Spinner spCountries,spYear,spIndicators;
     TextView tvTotalEnergyConsumption,tvRenewableEnergyConsumption,tvFossilFuelEnergyConsumptionPanel,tvOtherEnergyConsumptionPanel;
@@ -118,19 +124,19 @@ public class MainActivity extends AppCompatActivity {
 
         hasInternetConnection = false;
 
-        chart = (PieChart) findViewById(R.id.mainChart);
+        chart = (PieChartView) findViewById(R.id.mainChart);
 
         energyButtons = new EnergyButton[] {
-                new EnergyButton((Button) findViewById(R.id.btnFossil), "EG.USE.COMM.FO.ZS"),
-                new EnergyButton((Button) findViewById(R.id.btnNuclear), "EG.USE.COMM.CL.ZS"),
-                new EnergyButton((Button) findViewById(R.id.btnMarine), "2.1.10_SHARE.MARINE"),
-                new EnergyButton((Button) findViewById(R.id.btnBiofuel), "2.1.4_SHARE.BIOFUELS"),
-                new EnergyButton((Button) findViewById(R.id.btnHydro), "2.1.3_SHARE.HYDRO"),
-                new EnergyButton((Button) findViewById(R.id.btnWind), "2.1.5_SHARE.WIND"),
-                new EnergyButton((Button) findViewById(R.id.btnSolar), "2.1.6_SHARE.SOLAR"),
-                new EnergyButton((Button) findViewById(R.id.btnGeothermal), "2.1.7_SHARE.GEOTHERMAL"),
-                new EnergyButton((Button) findViewById(R.id.btnWaste), "2.1.8_SHARE.WASTE"),
-                new EnergyButton((Button) findViewById(R.id.btnBiogas), "2.1.9_SHARE.BIOGAS")
+                new EnergyButton(this, (Button) findViewById(R.id.btnFossil), "EG.USE.COMM.FO.ZS", Color.parseColor("#795548") /* brown */),
+                new EnergyButton(this, (Button) findViewById(R.id.btnNuclear), "EG.USE.COMM.CL.ZS", Color.parseColor("#FF9800") /* orange */),
+                new EnergyButton(this, (Button) findViewById(R.id.btnMarine), "2.1.10_SHARE.MARINE", Color.parseColor("#009688") /* teal */),
+                new EnergyButton(this, (Button) findViewById(R.id.btnBiofuel), "2.1.4_SHARE.BIOFUELS", Color.parseColor("#4CAF50") /* green */),
+                new EnergyButton(this, (Button) findViewById(R.id.btnHydro), "2.1.3_SHARE.HYDRO", Color.parseColor("#2196F3") /* blue */),
+                new EnergyButton(this, (Button) findViewById(R.id.btnWind), "2.1.5_SHARE.WIND", Color.parseColor("#CDDC39") /* lime */),
+                new EnergyButton(this, (Button) findViewById(R.id.btnSolar), "2.1.6_SHARE.SOLAR", Color.parseColor("#FFEB3B") /* yellow */),
+                new EnergyButton(this, (Button) findViewById(R.id.btnGeothermal), "2.1.7_SHARE.GEOTHERMAL", Color.parseColor("#F44336") /* red */),
+                new EnergyButton(this, (Button) findViewById(R.id.btnWaste), "2.1.8_SHARE.WASTE", Color.parseColor("#9E9E9E") /* grey */),
+                new EnergyButton(this, (Button) findViewById(R.id.btnBiogas), "2.1.9_SHARE.BIOGAS", Color.parseColor("#3F51B5") /* indigo */),
         };
 
         spCountries = (Spinner) findViewById(R.id.spCountries);
@@ -200,9 +206,9 @@ public class MainActivity extends AppCompatActivity {
                             initSpinners();
                             setupChart();
 
-                            chart.getLegend().setEnabled(false);
+/*                            chart.getLegend().setEnabled(false);
                             chart.setDescription("*values are % of TFEC");
-                            chart.setDescriptionTextSize(20);
+                            chart.setDescriptionTextSize(20);*/
                             //chart.setCenterText("Test");
                             //chart.setCenterTextSize(40);
 
@@ -323,8 +329,6 @@ public class MainActivity extends AppCompatActivity {
         }else{
             tvOtherEnergyConsumptionPanel.setText("0%");
         }
-
-        //TODO: Fill in PieChart
     }
 
     private void addDataToSpinner(Spinner spinner, List<String> spinnerArray) {
@@ -382,30 +386,43 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setupChartTest() {
-        // X values
-        String[] xVals = {
-                "Protein",
-                "Carbohydrates",
-                "Fats"
-        };
+    protected void setupChart() {
+        Country country = Countries.getCountry(spCountries.getSelectedItem().toString());
+        Log.d(TAG, "Country: " + country.getName());
+        String date = spYear.getSelectedItem().toString();
+        Log.d(TAG, "Date: "+ date);
 
-        int[] dummyValues = {10,50,30};
+        // Define values for chart
+        ArrayList<SliceValue> slices = new ArrayList<>();
+        for (EnergyButton energyButton : energyButtons) {
 
-        // Y values
-        ArrayList<Entry> entries = new ArrayList<>();
-        for (int i=0; i<xVals.length; i++) {
+            // Only get values for enabled indicators
+            if (!energyButton.isEnabled()) {
+                continue;
+            }
 
-            entries.add(new Entry(dummyValues[i], i));
+            Value value = country.getIndicator(energyButton.getIndicatorId()).getValue(date);
+
+            // Skip null values
+            if (value != null) {
+                slices.add(new SliceValue(
+                        value.getValue(),
+                        energyButton.getColor()
+                ));
+            }
         }
 
-        PieDataSet dataSet = new PieDataSet(entries, "Test data set");
-        dataSet.setColors(colors);
-        PieData data = new PieData(xVals, dataSet);
-        chart.setData(data);
+        // Set chart data
+        PieChartData chartData = new PieChartData();
+        chartData.setValues(slices);
+        chartData.setHasCenterCircle(true);
+        chartData.setSlicesSpacing(0);
+
+        chart.setPieChartData(chartData); // Also refreshes chart
+        chart.animate();
     }
 
-    private void setupChart() {
+    private void setupChartOld() {
         Country country = Countries.getCountry(spCountries.getSelectedItem().toString());
         Log.d(TAG, "Country: " + country.getName());
         String date = spYear.getSelectedItem().toString();
@@ -469,9 +486,9 @@ public class MainActivity extends AppCompatActivity {
         dataSet.setColors(colors);
         dataSet.setValueTextSize(14);
         PieData data = new PieData(xVals, dataSet);
-        chart.setData(data);
+        //chart.setData(data);
         //chart.invalidate(); // Refresh
-        chart.animateXY(500, 500); // Animates and refreshes
+        //chart.animateXY(500, 500); // Animates and refreshes
     }
 
     private void initData(){
@@ -514,6 +531,13 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         Log.d(TAG, "END OF DATA");
+    }
+
+    public PieChartView getChart() {
+        return chart;
+    }
+    public EnergyButton[] getEnergyButtons() {
+        return energyButtons;
     }
 
     public void hideSystemUi() {
