@@ -25,6 +25,7 @@ import com.example.kos.teamheliotrope.R;
 import com.example.kos.teamheliotrope.backend.Countries;
 import com.example.kos.teamheliotrope.backend.Country;
 import com.example.kos.teamheliotrope.backend.Indicator;
+import com.example.kos.teamheliotrope.backend.InternalStorage;
 import com.example.kos.teamheliotrope.backend.Value;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.Entry;
@@ -57,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
 
     File cDir;
     File fDir;
+
+    public static final String COUNTRYKEY = "COUNTRIES_DATA";
 
     public static final int[] colors = {
             // Android color guidelines: https://www.google.com/design/spec/style/color.html
@@ -211,29 +214,39 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 // Check if it has Internet connection
-                if (hasInternetConnection){
+                if (hasInternetConnection) {
                     initCountries();
                     initData();
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            initSpinners();
-                            setupChart();
-
-                            chart.getLegend().setEnabled(false);
-                            chart.setDescription("*values are % of TFEC");
-                            chart.setDescriptionTextSize(20);
-                            //chart.setCenterText("Test");
-                            //chart.setCenterTextSize(40);
-
-                            loadingDialog.dismiss();
-                        }
-                    });
+                }else{
+                    try {
+                        ArrayList<Country> cachedCountries = (ArrayList<Country>) InternalStorage.readObject(MainActivity.this, COUNTRYKEY);
+                        if (cachedCountries.size() > 0){
+                            Countries.setCountries(cachedCountries);
+                    }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
                 }
 
-                //displayData(); // Comment out when not debugging
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        initSpinners();
+                        setupChart();
+
+                        chart.getLegend().setEnabled(false);
+                        chart.setDescription("*values are % of TFEC");
+                        chart.setDescriptionTextSize(20);
+                        //chart.setCenterText("Test");
+                        //chart.setCenterTextSize(40);
+
+                        loadingDialog.dismiss();
+                    }
+                });
             }
+                //displayData(); // Comment out when not debugging
         }.start();
     }
 
@@ -521,62 +534,15 @@ public class MainActivity extends AppCompatActivity {
             // Waits until all executor threads finished
         }
 
-        for (Country country : Countries.getCountries()){
-            File tempFile = null;
-            try {
-                tempFile = File.createTempFile(country.getName(), null, cDir);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        Log.d(TAG, String.format("All threads finished (took %fs).", (System.nanoTime() - startTime) / Math.pow(10, 9)));
 
-            File tempFile2 = new File(fDir, country.getName() + ".txt");
-            String tempFileName = tempFile.getName().toString();
-
-            try {
-                OutputStream fos = new BufferedOutputStream(new FileOutputStream(tempFile));
-                ObjectOutputStream oos = new ObjectOutputStream(fos);
-                oos.writeObject(country);
-                //fos.close();
-                oos.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            // for loop that outputs the whole text of a file.
-            // country Object
-            Log.d("COUNTRY", country.getName());
-            // tempFile Object
-
-            Country ctry = null;
-
-            try {
-                InputStream fileInput = new BufferedInputStream(new FileInputStream(tempFile));
-                ObjectInputStream ois = new ObjectInputStream(fileInput);
-
-                ctry = (Country) ois.readObject();
-                ois.close();
-                Log.d("TEMPFILE", ctry.toString());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            Log.d("TEMPFILE", ctry.getName());
-
-
-            FileWriter fw  = null;
-            try {
-                fw = new FileWriter(tempFile2);
-
-                // saving contents to a file
-                fw.write(tempFileName);
-                fw.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
+        try {
+            InternalStorage.writeObject(this,COUNTRYKEY,Countries.getCountries());
+            Log.d(TAG,"Countries cached");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        Log.d(TAG, String.format("All threads finished (took %fs).", (System.nanoTime() - startTime) / Math.pow(10, 9)));
     }
 
     public void displayData() {

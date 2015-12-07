@@ -44,4 +44,8 @@ public class Countries {
     static public ArrayList<Country> getCountries() {
         return countries;
     }
+
+    static public void setCountries(ArrayList<Country> countries){
+        Countries.countries = countries;
+    }
 }
