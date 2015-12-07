@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "onResume triggered.");
-    }
+}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
