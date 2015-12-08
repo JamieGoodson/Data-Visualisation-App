@@ -50,105 +50,13 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/iconPanel"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_below="@+id/topPanel"
-        android:layout_marginBottom="10dp"
-        android:layout_marginTop="10dp">
-
-        <Button
-            android:id="@+id/btnFossil"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Fossil"
-            android:layout_weight="1"
-            android:onClick="toggleButton" />
-
-        <Button
-            android:id="@+id/btnNuclear"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Nuclear"
-            android:layout_weight="1"
-            android:onClick="toggleButton" />
-
-        <Button
-            android:id="@+id/btnMarine"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Marine"
-            android:layout_weight="1"
-            android:onClick="toggleButton" />
-
-        <Button
-            android:id="@+id/btnBiofuel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Biofuel"
-            android:layout_weight="1"
-            android:onClick="toggleButton" />
-
-        <Button
-            android:id="@+id/btnHydro"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hydro"
-            android:layout_weight="1"
-            android:onClick="toggleButton" />
-
-        <Button
-            android:id="@+id/btnWind"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Wind"
-            android:layout_weight="1"
-            android:onClick="toggleButton" />
-
-        <Button
-            android:id="@+id/btnSolar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Solar"
-            android:layout_weight="1"
-            android:onClick="toggleButton" />
-
-        <Button
-            android:id="@+id/btnGeothermal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Geothermal"
-            android:layout_weight="1"
-            android:onClick="toggleButton" />
-
-        <Button
-            android:id="@+id/btnWaste"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Waste"
-            android:layout_weight="1"
-            android:onClick="toggleButton" />
-
-        <Button
-            android:id="@+id/btnBiogas"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Biogas"
-            android:layout_weight="1"
-            android:onClick="toggleButton" />
-
-    </LinearLayout>
-
-    <LinearLayout
         android:id="@+id/bottomPanel"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/iconPanel"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/topPanel">
 
         <LinearLayout
             android:id="@+id/leftStatsPanel"
