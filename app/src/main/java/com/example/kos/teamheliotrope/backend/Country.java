@@ -11,6 +11,7 @@ public class Country implements Serializable{
     String name;
     String id;
     ArrayList<Indicator> indicators;
+    int nullValueCount = 0;
 
     public Country() {
         name = "";
@@ -60,5 +61,9 @@ public class Country implements Serializable{
 
     public String getId() {
         return id;
+    }
+
+    public int getNullValueCount() {
+        return nullValueCount;
     }
 }

@@ -48,4 +48,8 @@ public class Countries {
     static public void setCountries(ArrayList<Country> countries){
         Countries.countries = countries;
     }
+
+    static public void removeCountry(Country country) {
+        countries.remove(country);
+    }
 }

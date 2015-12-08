@@ -44,13 +44,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import lecho.lib.hellocharts.model.Axis;
-import lecho.lib.hellocharts.model.AxisValue;
 import lecho.lib.hellocharts.model.Line;
 import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PieChartData;
 import lecho.lib.hellocharts.model.PointValue;
 import lecho.lib.hellocharts.model.SliceValue;
-import lecho.lib.hellocharts.util.AxisAutoValues;
 import lecho.lib.hellocharts.view.LineChartView;
 import lecho.lib.hellocharts.view.PieChartView;
 
@@ -132,6 +130,9 @@ public class MainActivity extends AppCompatActivity {
         pieChart = (PieChartView) findViewById(R.id.mainChart);
         lineChart = (LineChartView) findViewById(R.id.secondaryChart);
 
+        lineChart.setInteractive(false);
+        //lineChart.setZoomEnabled(false);
+
         spCountries = (Spinner) findViewById(R.id.spCountries);
         spYear = (Spinner) findViewById(R.id.spYear);
 
@@ -198,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
                 if (hasInternetConnection) {
                     initCountries();
                     initData();
+                    displayCountriesNullCounts(); // Debug
                 } else {
                     try {
                         runOnUiThread(new Runnable() {
@@ -238,8 +240,13 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onStart triggered.");
     }
 
+    /**
+     * Sets height of the main content area (workaround for not being able to set this in XML)
+     */
     private void setHeightOfMainArea() {
         ViewTreeObserver viewTreeObserver = indicatorPanel.getViewTreeObserver();
+
+        // Wait until indicator panel has been drawn (so we can use its height value)
         viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -666,6 +673,12 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d(TAG, String.format("All threads finished (took %fs).", (System.nanoTime() - startTime) / Math.pow(10, 9)));
 
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                loadingDialog.setMessage("Saving data to cache...");
+            }
+        });
         try {
             InternalStorage.writeObject(this,COUNTRYKEY,Countries.getCountries());
             Log.d(TAG,"Countries cached");
@@ -688,6 +701,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         Log.d(TAG, "END OF DATA");
+    }
+
+    public void displayCountriesNullCounts() {
+        for (Country country : Countries.getCountries()) {
+            Log.d(TAG, String.format("%s: %d", country.getName(), country.getNullValueCount()));
+        }
     }
 
     public PieChartView getPieChart() {

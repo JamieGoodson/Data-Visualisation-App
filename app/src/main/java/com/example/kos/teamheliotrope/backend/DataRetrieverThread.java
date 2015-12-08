@@ -133,10 +133,20 @@ public class DataRetrieverThread extends Thread {
                 date = dataForThisYear.getString("date");
                 value = dataForThisYear.getString("value");
 
-                if ((!value.equals("null")) && (Integer.parseInt(date) >= MainActivity.dateMin) && (Integer.parseInt(date) <= MainActivity.dateMax)) { // Skip null and pre-1990/post-20012 values (to reduces holes in data)
-                    indicator.addValue(new Value(date, Float.parseFloat(value)));
+                if (((date.length() == 4) && (Integer.parseInt(date) >= MainActivity.dateMin) && (Integer.parseInt(date) <= MainActivity.dateMax))) { // Skip pre-1990/post-20012 values (to reduces holes in data)
+                    if (!value.equals("null")) {
+                        indicator.addValue(new Value(date, Float.parseFloat(value)));
+                    } else {
+                        country.nullValueCount = country.nullValueCount + 1;
+                    }
                 }
             }
+
+            // Remove country from Countries if it has too many null values
+            if (country.nullValueCount > 5) {
+                Countries.removeCountry(country);
+            }
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
