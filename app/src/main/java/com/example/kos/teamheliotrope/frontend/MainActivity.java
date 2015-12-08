@@ -391,6 +391,10 @@ public class MainActivity extends AppCompatActivity {
 
             indicatorPanel.addView(row);
         }
+
+        TextView valueDec = new TextView(this);
+        valueDec.setText(R.string.value_desc);
+        indicatorPanel.addView(valueDec);
     }
 
     private void initSpinners(){

@@ -3,4 +3,6 @@
 
     <string name="hello_world">BitBucket Test</string>
     <string name="action_settings">Settings</string>
+
+    <string name="value_desc">*values are % of TFEC</string>
 </resources>
