@@ -347,12 +347,12 @@ public class MainActivity extends AppCompatActivity {
                 // Description
                 LinearLayout descLayout = new LinearLayout(this);
                 descLayout.setOrientation(LinearLayout.VERTICAL);
-                TextView title = new TextView(this);
-                title.setText("Title");
                 TextView value = new TextView(this);
                 value.setText("0%");
-                descLayout.addView(title);
+                TextView title = new TextView(this);
+                title.setText("Title");
                 descLayout.addView(value);
+                descLayout.addView(title);
 
 
                 params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1f);

@@ -14,8 +14,7 @@ public class Value implements Serializable {
     }
 
     public String toString() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy");
-        return String.format("%s | %s", dateFormat.format(date), value.toString());
+        return String.format("%s | %s", date, value.toString());
     }
 
     public String getDate() {
