@@ -40,6 +40,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
+
     public static final int[] colors = {
             // Android color guidelines: https://www.google.com/design/spec/style/color.html
             Color.parseColor("#F44336"), // red

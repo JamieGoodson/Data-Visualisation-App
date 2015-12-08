@@ -1,12 +1,10 @@
-package com.example.kos.teamheliotrope.tests;
-
-import com.example.kos.teamheliotrope.backend.Countries;
-import com.example.kos.teamheliotrope.backend.Country;
+package com.example.kos.teamheliotrope.backend;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by firasAltayeb on 07/12/2015.
