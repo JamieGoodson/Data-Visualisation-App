@@ -7,6 +7,7 @@ import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -253,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
     
     private void setupIndicatorPanel() {
         String[] indicatorTitles = {
-                "Fossil fuels",
+                "Fossil Fuels",
                 "Nuclear",
                 "Marine",
                 "Biofuel",
@@ -305,6 +306,7 @@ public class MainActivity extends AppCompatActivity {
         };
 
         LinearLayout.LayoutParams params;
+        int dp;
         for (int i=0; i<10; i+=2) {
             LinearLayout row = new LinearLayout(this);
             row.setOrientation(LinearLayout.HORIZONTAL);
@@ -320,7 +322,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         if (v.getAlpha() == 1) {
-                            v.setAlpha(0.5f);
+                            v.setAlpha(0.4f);
                         } else {
                             v.setAlpha(1);
                         }
@@ -330,7 +332,8 @@ public class MainActivity extends AppCompatActivity {
                 indicatorButtons.add(indicatorButton);
 
                 params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1f);
-                params.setMargins(10, 10, 10, 10);
+                dp = dpToPx(5);
+                params.setMargins(dp, dp, dp, dp);
                 column.setLayoutParams(params);
 
 
@@ -338,6 +341,8 @@ public class MainActivity extends AppCompatActivity {
                 LinearLayout iconLayout = new LinearLayout(this);
                 ImageView icon = new ImageView(this);
                 icon.setImageResource(icons[i + c]);
+                dp = dpToPx(10);
+                icon.setPadding(dp, dp, dp, dp);
                 iconLayout.addView(icon);
 
                 params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1f);
@@ -348,9 +353,12 @@ public class MainActivity extends AppCompatActivity {
                 LinearLayout descLayout = new LinearLayout(this);
                 descLayout.setOrientation(LinearLayout.VERTICAL);
                 TextView value = new TextView(this);
+                value.setTextColor(Color.WHITE);
+                value.setTextSize(20);
                 value.setText("0%");
                 TextView title = new TextView(this);
-                title.setText("Title");
+                title.setTextColor(Color.WHITE);
+                title.setText(indicatorTitles[i+c]);
                 descLayout.addView(value);
                 descLayout.addView(title);
 
@@ -564,7 +572,7 @@ public class MainActivity extends AppCompatActivity {
         // Build a list of all selected indicator ids
         ArrayList<String> selectedIndicatorIds = new ArrayList<>();
         for (IndicatorButton indicatorButton : indicatorButtons) {
-            if (indicatorButton.getLayout().getAlpha() == 1) {
+            if (indicatorButton.isEnabled()) {
                 selectedIndicatorIds.add(indicatorButton.getIndicatorId());
             }
         }
@@ -692,5 +700,11 @@ public class MainActivity extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
                         | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
                         | View.SYSTEM_UI_FLAG_IMMERSIVE);
+    }
+
+    public static int dpToPx(int dp) {
+        float scale = Resources.getSystem().getDisplayMetrics().density;
+
+        return ((int) (dp*scale + 0.5f));
     }
 }
