@@ -244,6 +244,8 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        loadingDialog.setMessage("Initialising user interface...");
+
                         initSpinners();
                         setupPieChart();
                         updateIndicatorButtons();
@@ -303,14 +305,14 @@ public class MainActivity extends AppCompatActivity {
     
     private void setupIndicatorPanel() {
         String[] indicatorTitles = {
-                "Fossil Fuels",
+                "Fossil\nFuels",
                 "Nuclear",
                 "Marine",
                 "Biofuel",
                 "Hydro",
                 "Wind",
                 "Solar",
-                "Geothermal",
+                "Geo-\nthermal",
                 "Waste",
                 "Biogas"
         };
@@ -716,19 +718,22 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d(TAG, String.format("All threads finished (took %fs).", (System.nanoTime() - startTime) / Math.pow(10, 9)));
 
+
+        // Save data to cache
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 loadingDialog.setMessage("Saving data to cache...");
             }
         });
+
         try {
-            InternalStorage.writeObject(this,COUNTRYKEY,Countries.getCountries());
+            Log.d(TAG, "Saving countries to cache...");
+            InternalStorage.writeObject(MainActivity.this,COUNTRYKEY,Countries.getCountries());
             Log.d(TAG,"Countries cached");
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     public void displayData() {
@@ -752,10 +757,6 @@ public class MainActivity extends AppCompatActivity {
         for (Country country : Countries.getCountries()) {
             Log.d(TAG, String.format("%s: %d", country.getName(), country.getNullValueCount()));
         }
-    }
-
-    public PieChartView getPieChart() {
-        return pieChart;
     }
 
     public ArrayList<IndicatorButton> getIndicatorButtons() {
