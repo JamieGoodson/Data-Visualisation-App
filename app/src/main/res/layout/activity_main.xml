@@ -59,146 +59,148 @@
         android:layout_alignParentStart="true"
         android:layout_below="@+id/topPanel">
 
-        <LinearLayout
-            android:id="@+id/leftStatsPanel"
-            android:orientation="vertical"
+        <ScrollView
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.2">
+            android:id="@+id/scrollView2"
+            android:layout_weight="0.7"
+            android:fillViewport="true">
 
             <LinearLayout
-                android:id="@+id/totalEnergyConsumptionPanel"
                 android:orientation="vertical"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1">
-
-                <TextView
-                    android:id="@+id/tvTotalEnergyConsumptionText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Total Energy Consumption:"
-                    android:textSize="18sp" />
-
-                <TextView
-                    android:id="@+id/tvTotalEnergyConsumption"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="0 kJ"
-                    android:textSize="28sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/renewableEnergyConsumptionPanel"
-                android:orientation="vertical"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1">
-
-                <TextView
-                    android:id="@+id/tvRenewableEnergyConsumptionText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Energy from Renewable Energy:"
-                    android:textSize="18sp" />
-
-                <TextView
-                    android:id="@+id/tvRenewableEnergyConsumption"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="0%"
-                    android:textSize="28sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/fossilFuelEnergyConsumptionPanel"
-                android:orientation="vertical"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1">
-
-                <TextView
-                    android:id="@+id/tvFossilFuelEnergyConsumptionPanelText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Energy from Fossil Fuels:"
-                    android:textSize="18sp" />
-
-                <TextView
-                    android:id="@+id/tvFossilFuelEnergyConsumptionPanel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="0%"
-                    android:textSize="28sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/otherEnergyConsumptionPanel"
-                android:orientation="vertical"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1">
-
-                <TextView
-                    android:id="@+id/tvOtherEnergyConsumptionPanelText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Energy from Other Sources:"
-                    android:textSize="18sp" />
-
-                <TextView
-                    android:id="@+id/tvOtherEnergyConsumptionPanel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="0%"
-                    android:textSize="28sp" />
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/chartPanel"
-            android:orientation="vertical"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:layout_weight="0.5">
-
-            <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/scrollView"
-                android:fillViewport="true">
+                android:layout_height="match_parent">
 
                 <LinearLayout
-                    android:orientation="vertical"
+                    android:id="@+id/mainChartAndStatsLayout"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0.3">
+
+                        <LinearLayout
+                            android:id="@+id/totalEnergyConsumptionPanel"
+                            android:orientation="vertical"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <TextView
+                                android:id="@+id/tvTotalEnergyConsumptionText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceLarge"
+                                android:text="Total Energy Consumption:"
+                                android:textSize="18sp" />
+
+                            <TextView
+                                android:id="@+id/tvTotalEnergyConsumption"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceLarge"
+                                android:text="0 kJ"
+                                android:textSize="28sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/renewableEnergyConsumptionPanel"
+                            android:orientation="vertical"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <TextView
+                                android:id="@+id/tvRenewableEnergyConsumptionText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceLarge"
+                                android:text="Energy from Renewable Energy:"
+                                android:textSize="18sp" />
+
+                            <TextView
+                                android:id="@+id/tvRenewableEnergyConsumption"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceLarge"
+                                android:text="0%"
+                                android:textSize="28sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/fossilFuelEnergyConsumptionPanel"
+                            android:orientation="vertical"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <TextView
+                                android:id="@+id/tvFossilFuelEnergyConsumptionPanelText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceLarge"
+                                android:text="Energy from Fossil Fuels:"
+                                android:textSize="18sp" />
+
+                            <TextView
+                                android:id="@+id/tvFossilFuelEnergyConsumptionPanel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceLarge"
+                                android:text="0%"
+                                android:textSize="28sp" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/otherEnergyConsumptionPanel"
+                            android:orientation="vertical"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <TextView
+                                android:id="@+id/tvOtherEnergyConsumptionPanelText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceLarge"
+                                android:text="Energy from Other Sources:"
+                                android:textSize="18sp" />
+
+                            <TextView
+                                android:id="@+id/tvOtherEnergyConsumptionPanel"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="?android:attr/textAppearanceLarge"
+                                android:text="0%"
+                                android:textSize="28sp" />
+                        </LinearLayout>
+                    </LinearLayout>
 
                     <lecho.lib.hellocharts.view.PieChartView
                         android:id="@+id/mainChart"
-                        android:layout_width="wrap_content"
-                        android:layout_height="300dp" />
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0.7" />
+                </LinearLayout>
 
+                <LinearLayout
+                    android:id="@+id/secondaryChartLayout"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_below="@id/mainChartAndStatsLayout">
 
                     <lecho.lib.hellocharts.view.LineChartView
                         android:id="@+id/secondaryChart"
-                        android:layout_width="wrap_content"
-                        android:layout_height="400dp" />
-
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
                 </LinearLayout>
-
-            </ScrollView>
-
-        </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
 
         <LinearLayout
             android:id="@+id/indicatorPanel"
@@ -206,8 +208,8 @@
             android:layout_height="match_parent"
             android:layout_weight="0.3"
             android:orientation="vertical">
-
         </LinearLayout>
+
     </LinearLayout>
 
 </RelativeLayout>

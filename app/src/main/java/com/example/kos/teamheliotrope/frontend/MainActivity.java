@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
@@ -16,6 +17,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -87,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<IndicatorButton> indicatorButtons = new ArrayList<>();
     Spinner spCountries,spYear,spIndicators;
     TextView tvTotalEnergyConsumption,tvRenewableEnergyConsumption,tvFossilFuelEnergyConsumptionPanel,tvOtherEnergyConsumptionPanel;
-    LinearLayout indicatorPanel;
+    LinearLayout topPanel, mainChartAndStatsLayout, secondaryChartLayout, indicatorPanel;
 
     public AlertDialog loadingDialog;
 
@@ -95,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "onResume triggered.");
-}
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,8 +140,14 @@ public class MainActivity extends AppCompatActivity {
         tvFossilFuelEnergyConsumptionPanel = (TextView) findViewById(R.id.tvFossilFuelEnergyConsumptionPanel);
         tvOtherEnergyConsumptionPanel = (TextView) findViewById(R.id.tvOtherEnergyConsumptionPanel);
 
+        topPanel = (LinearLayout) findViewById(R.id.topPanel);
+        mainChartAndStatsLayout = (LinearLayout) findViewById(R.id.mainChartAndStatsLayout);
+        secondaryChartLayout = (LinearLayout) findViewById(R.id.secondaryChartLayout);
         indicatorPanel = (LinearLayout) findViewById(R.id.indicatorPanel);
+
         setupIndicatorPanel();
+        setHeightOfMainArea();
+
 
         //Testing internet connection
         Thread thread = new Thread(new Runnable() {
@@ -222,6 +230,32 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         }.start();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart triggered.");
+    }
+
+    private void setHeightOfMainArea() {
+        ViewTreeObserver viewTreeObserver = indicatorPanel.getViewTreeObserver();
+        viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                LinearLayout.LayoutParams params;
+
+                // Set height of main-chart-and-stats layout to height of screen
+                params = (LinearLayout.LayoutParams) mainChartAndStatsLayout.getLayoutParams();
+                params.height = indicatorPanel.getHeight();
+                mainChartAndStatsLayout.setLayoutParams(params);
+
+                // Set height of secondary chart layout to height of screen
+                params = (LinearLayout.LayoutParams) secondaryChartLayout.getLayoutParams();
+                params.height = indicatorPanel.getHeight();
+                secondaryChartLayout.setLayoutParams(params);
+            }
+        });
     }
     
     private void setupIndicatorPanel() {
