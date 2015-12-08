@@ -23,7 +23,6 @@ public class Indicator {
         for (Value value : values) {
             if (value.getDate().equals(date)) return value;
         }
-
         return null;
     }
 
