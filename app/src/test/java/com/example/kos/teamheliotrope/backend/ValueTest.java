@@ -1,6 +1,5 @@
 package com.example.kos.teamheliotrope.backend;
 
-import android.util.Log;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,16 +18,17 @@ public class ValueTest {
      */
     @Before
     public void setUp() throws Exception {
-        test = new Value("August 30", (float) 20022020);
+        test = new Value("August", (float) 36.2);
     }
 
     /**
-     * can some explain this to me?!?
-     * @throws Exception
+     * this method checks whether toString() works by checking
+     * whether the result returned by the method is equal to
+     * what is expected
      */
     @Test
     public void testToString() throws Exception {
-        //Log.d("to string method", test.toString());
+        assertEquals(test.toString().equals("August | 36.2"),true);
     }
 
 

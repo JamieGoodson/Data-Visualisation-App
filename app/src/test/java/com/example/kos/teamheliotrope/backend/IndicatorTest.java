@@ -21,16 +21,17 @@ public class IndicatorTest {
     @Before
     public void setUp() throws Exception {
         indicator = new Indicator("testId","testTitle");
-        value = new Value("August",(float) 070777);
+        value = new Value("August",(float) 100);
         indicator.addValue(value);
     }
 
     /**
-     * TO DO
+     * this method check whether getValue works by checking whether the returned
+     * value's float value is equal to the float value it was assigned
      */
     @Test
     public void testGetValue() throws Exception {
-
+        assertEquals(indicator.getValue("August").getValue() == 100, true);
     }
 
     /**
