@@ -3,18 +3,21 @@ package com.example.kos.teamheliotrope.frontend;
 import android.os.Handler;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 public class IndicatorButton {
     MainActivity mainActivity;
     LinearLayout layout;
+    TextView valueTextView;
     String indicatorTitle;
     String indicatorId;
     int color;
     int clickCount = 0;
 
-    public IndicatorButton(MainActivity activity, LinearLayout layout, String indicatorId, String indicatorTitle, int color) {
+    public IndicatorButton(MainActivity activity, LinearLayout layout, TextView valueTextView, String indicatorId, String indicatorTitle, int color) {
         this.mainActivity = activity;
         this.layout = layout;
+        this.valueTextView = valueTextView;
         this.indicatorId = indicatorId;
         this.indicatorTitle = indicatorTitle;
         this.color = color;
@@ -23,12 +26,27 @@ public class IndicatorButton {
         setOnLongClickListener();
     }
 
-
     /**
      * Set onLongClickListener for layout.
      * When triggered, all buttons except this one will be disabled.
      */
     private void setOnLongClickListener() {
+        layout.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                for (IndicatorButton indicatorButton : mainActivity.getIndicatorButtons()) {
+                    if (!indicatorButton.equals(IndicatorButton.this)) { // Don't include this layout
+                        indicatorButton.getLayout().setAlpha(0.5f); // Disable layout
+                        mainActivity.setupChart();
+                    }
+                }
+
+                return true;
+            }
+        });
+    }
+
+    private void setOnLongClickListenerOld() {
         layout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -80,6 +98,10 @@ public class IndicatorButton {
 
     public LinearLayout getLayout() {
         return layout;
+    }
+
+    public TextView getTextView() {
+        return valueTextView;
     }
 
     public String getIndicatorId() {

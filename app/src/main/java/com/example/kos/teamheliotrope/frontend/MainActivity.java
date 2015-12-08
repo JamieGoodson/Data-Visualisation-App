@@ -15,6 +15,7 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -33,25 +34,10 @@ import com.example.kos.teamheliotrope.backend.Country;
 import com.example.kos.teamheliotrope.backend.Indicator;
 import com.example.kos.teamheliotrope.backend.InternalStorage;
 import com.example.kos.teamheliotrope.backend.Value;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.PieData;
-import com.github.mikephil.charting.data.PieDataSet;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
+
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -111,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<IndicatorButton> indicatorButtons = new ArrayList<>();
     Spinner spCountries,spYear,spIndicators;
     TextView tvTotalEnergyConsumption,tvRenewableEnergyConsumption,tvFossilFuelEnergyConsumptionPanel,tvOtherEnergyConsumptionPanel;
-    LinearLayout indicatorPanel;
+    LinearLayout indicatorPanel, chartPanel;
 
     public AlertDialog loadingDialog;
 
@@ -153,19 +139,6 @@ public class MainActivity extends AppCompatActivity {
 
         chart = (PieChartView) findViewById(R.id.mainChart);
 
-/*        indicatorButtons = new IndicatorButton[] {
-                new IndicatorButton(this, (Button) findViewById(R.id.btnFossil), "EG.USE.COMM.FO.ZS", Color.parseColor("#795548") *//* brown *//*),
-                new IndicatorButton(this, (Button) findViewById(R.id.btnNuclear), "EG.USE.COMM.CL.ZS", Color.parseColor("#FF9800") *//* orange *//*),
-                new IndicatorButton(this, (Button) findViewById(R.id.btnMarine), "2.1.10_SHARE.MARINE", Color.parseColor("#009688") *//* teal *//*),
-                new IndicatorButton(this, (Button) findViewById(R.id.btnBiofuel), "2.1.4_SHARE.BIOFUELS", Color.parseColor("#4CAF50") *//* green *//*),
-                new IndicatorButton(this, (Button) findViewById(R.id.btnHydro), "2.1.3_SHARE.HYDRO", Color.parseColor("#2196F3") *//* blue *//*),
-                new IndicatorButton(this, (Button) findViewById(R.id.btnWind), "2.1.5_SHARE.WIND", Color.parseColor("#CDDC39") *//* lime *//*),
-                new IndicatorButton(this, (Button) findViewById(R.id.btnSolar), "2.1.6_SHARE.SOLAR", Color.parseColor("#FFEB3B") *//* yellow *//*),
-                new IndicatorButton(this, (Button) findViewById(R.id.btnGeothermal), "2.1.7_SHARE.GEOTHERMAL", Color.parseColor("#F44336") *//* red *//*),
-                new IndicatorButton(this, (Button) findViewById(R.id.btnWaste), "2.1.8_SHARE.WASTE", Color.parseColor("#9E9E9E") *//* grey *//*),
-                new IndicatorButton(this, (Button) findViewById(R.id.btnBiogas), "2.1.9_SHARE.BIOGAS", Color.parseColor("#3F51B5") *//* indigo *//*),
-        };*/
-
         spCountries = (Spinner) findViewById(R.id.spCountries);
         spYear = (Spinner) findViewById(R.id.spYear);
 
@@ -174,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
         tvFossilFuelEnergyConsumptionPanel = (TextView) findViewById(R.id.tvFossilFuelEnergyConsumptionPanel);
         tvOtherEnergyConsumptionPanel = (TextView) findViewById(R.id.tvOtherEnergyConsumptionPanel);
 
+        chartPanel = (LinearLayout) findViewById(R.id.chartPanel);
         indicatorPanel = (LinearLayout) findViewById(R.id.indicatorPanel);
         setupIndicatorPanel();
 
@@ -228,6 +202,12 @@ public class MainActivity extends AppCompatActivity {
                     initData();
                 } else {
                     try {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                loadingDialog.setMessage("Reading from cache...");
+                            }
+                        });
                         ArrayList<Country> cachedCountries = (ArrayList<Country>) InternalStorage.readObject(MainActivity.this, COUNTRYKEY);
                         if (cachedCountries.size() > 0){
                             Countries.setCountries(cachedCountries);
@@ -244,6 +224,7 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         initSpinners();
                         setupChart();
+                        updateIndicatorButtons();
 
                         loadingDialog.dismiss();
                     }
@@ -317,7 +298,6 @@ public class MainActivity extends AppCompatActivity {
                 // Column (layout also acts as button)
                 LinearLayout column = new LinearLayout(this);
                 column.setOrientation(LinearLayout.HORIZONTAL);
-                IndicatorButton indicatorButton = new IndicatorButton(this, column, indicators[i+c], indicatorTitles[i+c], colors[i+c]);
                 column.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -329,10 +309,9 @@ public class MainActivity extends AppCompatActivity {
                         setupChart();
                     }
                 });
-                indicatorButtons.add(indicatorButton);
 
                 params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1f);
-                dp = dpToPx(5);
+                dp = dpToPx(4);
                 params.setMargins(dp, dp, dp, dp);
                 column.setLayoutParams(params);
 
@@ -351,21 +330,32 @@ public class MainActivity extends AppCompatActivity {
 
                 // Description
                 LinearLayout descLayout = new LinearLayout(this);
+                dp = dpToPx(10);
+                descLayout.setPadding(dp, dp, dp, dp);
                 descLayout.setOrientation(LinearLayout.VERTICAL);
+                descLayout.setGravity(Gravity.CENTER);
+                //descLayout.setBackgroundColor(Color.BLACK); // test
                 TextView value = new TextView(this);
                 value.setTextColor(Color.WHITE);
-                value.setTextSize(20);
+                value.setGravity(Gravity.LEFT);
+                value.setTextSize(15);
                 value.setText("0%");
                 TextView title = new TextView(this);
                 title.setTextColor(Color.WHITE);
-                title.setText(indicatorTitles[i+c]);
+                //title.setBackgroundColor(Color.RED); // test
+                title.setGravity(Gravity.LEFT);
+                title.setText(indicatorTitles[i + c]);
+
                 descLayout.addView(value);
                 descLayout.addView(title);
 
 
-                params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1f);
+                params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 0.8f);
                 descLayout.setLayoutParams(params);
 
+                // Create indicator button object
+                IndicatorButton indicatorButton = new IndicatorButton(this, column, value, indicators[i+c], indicatorTitles[i+c], colors[i+c]);
+                indicatorButtons.add(indicatorButton);
 
                 column.addView(iconLayout);
                 column.addView(descLayout);
@@ -400,6 +390,7 @@ public class MainActivity extends AppCompatActivity {
                     firstLoad = false;
                 } else {
                     setupChart();
+                    updateIndicatorButtons();
                 }
             }
 
@@ -428,6 +419,7 @@ public class MainActivity extends AppCompatActivity {
                     firstLoad = false;
                 } else {
                     setupChart();
+                    updateIndicatorButtons();
                 }
             }
 
@@ -442,19 +434,19 @@ public class MainActivity extends AppCompatActivity {
         if (totalValue != -1) {
             tvTotalEnergyConsumption.setText(String.format("%d", Math.round(totalValue)) + " kJ");
         } else {
-            tvTotalEnergyConsumption.setText("No data");
+            tvTotalEnergyConsumption.setText("N/A");
         }
         float renewableValue = getValueOfIndicatorCountry(selectedCountry,"EG.FEC.RNEW.ZS",year);
         if (renewableValue != -1) {
             tvRenewableEnergyConsumption.setText(String.format("%.2f", renewableValue) + "%");
         } else {
-            tvRenewableEnergyConsumption.setText("No data");
+            tvRenewableEnergyConsumption.setText("N/A");
         }
         float fossilValue = getValueOfIndicatorCountry(selectedCountry,"EG.USE.COMM.FO.ZS",year);
         if (fossilValue != -1) {
             tvFossilFuelEnergyConsumptionPanel.setText(String.format("%.2f", fossilValue) + "%");
         } else {
-            tvFossilFuelEnergyConsumptionPanel.setText("No data");
+            tvFossilFuelEnergyConsumptionPanel.setText("N/A");
         }
         float otherValue = 100;
         if (renewableValue != -1){
@@ -526,6 +518,22 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    protected void updateIndicatorButtons() {
+        Country country = Countries.getCountry(spCountries.getSelectedItem().toString());
+        String date = spYear.getSelectedItem().toString();
+
+        for (IndicatorButton indicatorButton : indicatorButtons) {
+            TextView valueTextView = indicatorButton.getTextView();
+            Value value = country.getIndicator(indicatorButton.getIndicatorId()).getValue(date);
+
+            if (value != null) {
+                valueTextView.setText(String.format("%.2f%%", value.getValue()));
+            } else {
+                valueTextView.setText("N/A");
+            }
+        }
+    }
+
     protected void setupChart() {
         Country country = Countries.getCountry(spCountries.getSelectedItem().toString());
         Log.d(TAG, "Country: " + country.getName());
@@ -561,75 +569,6 @@ public class MainActivity extends AppCompatActivity {
 
         chart.setPieChartData(chartData); // Also refreshes chart
         chart.animate();
-    }
-
-    private void setupChartOld() {
-        Country country = Countries.getCountry(spCountries.getSelectedItem().toString());
-        Log.d(TAG, "Country: " + country.getName());
-        String date = spYear.getSelectedItem().toString();
-        Log.d(TAG, "Date: "+ date);
-
-        // Build a list of all selected indicator ids
-        ArrayList<String> selectedIndicatorIds = new ArrayList<>();
-        for (IndicatorButton indicatorButton : indicatorButtons) {
-            if (indicatorButton.isEnabled()) {
-                selectedIndicatorIds.add(indicatorButton.getIndicatorId());
-            }
-        }
-
-        // X values - Setup list of indicators we want to use for chart
-        //TODO: Add segment to pie chart that displays percentage we didn't have data for (null values)
-        //TODO: Don't bother displaying values equal to 0.
-
-        ArrayList<Float> values = new ArrayList<>();
-        ArrayList<String> xVals = new ArrayList<>();
-        for (Indicator indicator : country.getIndicators()) {
-            String indicatorId = indicator.getId();
-            if (selectedIndicatorIds.contains(indicatorId)) {
-                String indicatorTitle = indicator.getTitle();
-                Value indicatorValue = indicator.getValue(date);
-
-                indicatorTitle = indicator.getTitle();
-
-                if (indicatorTitle.length() > 12) {
-                    xVals.add(indicatorTitle.substring(0, 12) + "...");
-                } else {
-                    xVals.add(indicatorTitle);
-                }
-
-                // Skip null values
-                float value = 0f;
-                if (indicatorValue != null) {
-                    value = indicatorValue.getValue();
-                    values.add(value);
-                } else {
-                    values.add(value);
-                    Log.d(TAG, "Null value found. setting to 0.");
-                }
-
-                Log.d(TAG, String.format("Indicator: %s | Value at this date: %f | Number of values: %d", indicatorTitle, value, indicator.getValues().size()));
-            }
-        }
-
-        // Y values - Get values for each indicator
-        float total = 0f;
-        ArrayList<Entry> entries = new ArrayList<>();
-        for (int i=0; i<xVals.size(); i++) {
-            float value = values.get(i);
-            entries.add(new Entry(value, i));
-
-            total += value;
-        }
-
-        Log.d(TAG, "Total value for pie chart: " + total);
-
-        PieDataSet dataSet = new PieDataSet(entries, "Test data set");
-        dataSet.setColors(colors);
-        dataSet.setValueTextSize(14);
-        PieData data = new PieData(xVals, dataSet);
-        //chart.setData(data);
-        //chart.invalidate(); // Refresh
-        //chart.animateXY(500, 500); // Animates and refreshes
     }
 
     private void initData(){
