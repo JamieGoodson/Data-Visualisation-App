@@ -3,7 +3,6 @@ package com.example.kos.teamheliotrope.frontend;
 import com.example.kos.teamheliotrope.backend.CountryInfoThread;
 import com.example.kos.teamheliotrope.backend.DataRetrieverThread;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
@@ -17,13 +16,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
@@ -45,8 +41,15 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import lecho.lib.hellocharts.model.Axis;
+import lecho.lib.hellocharts.model.AxisValue;
+import lecho.lib.hellocharts.model.Line;
+import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PieChartData;
+import lecho.lib.hellocharts.model.PointValue;
 import lecho.lib.hellocharts.model.SliceValue;
+import lecho.lib.hellocharts.util.AxisAutoValues;
+import lecho.lib.hellocharts.view.LineChartView;
 import lecho.lib.hellocharts.view.PieChartView;
 
 public class MainActivity extends AppCompatActivity {
@@ -55,23 +58,9 @@ public class MainActivity extends AppCompatActivity {
     File fDir;
 
     public static final String COUNTRYKEY = "COUNTRIES_DATA";
-
-    public static final int[] colors = {
-            // Android color guidelines: https://www.google.com/design/spec/style/color.html
-            Color.parseColor("#F44336"), // red
-            Color.parseColor("#4CAF50"), // green
-            Color.parseColor("#2196F3"), // blue
-            Color.parseColor("#FF9800"), // orange
-            Color.parseColor("#795548"), // brown
-            Color.parseColor("#009688"), // teal
-            Color.parseColor("#CDDC39"), // lime
-            Color.parseColor("#FFEB3B"), // yellow
-            Color.parseColor("#E91E63"), // pink
-            Color.parseColor("#9C27B0"), // purple
-            Color.parseColor("#9E9E9E"), // grey
-            Color.parseColor("#3F51B5") // indigo
-    };
     public static final String TAG = "MAIN_ACTIVITY";
+    public static final int dateMin = 1990;
+    public static final int dateMax = 2012;
     public static final String countryQuery = "http://api.worldbank.org/country?per_page=300&region=WLD&format=json";
     private final String[] indicatorIds = {
             "1.1_TOTAL.FINAL.ENERGY.CONSUM", // Total final energy consumption (TFEC) (TJ)
@@ -93,11 +82,12 @@ public class MainActivity extends AppCompatActivity {
     protected boolean hasInternetConnection;
 
     //Views from activity_main.xml that we need reference to
-    PieChartView chart;
+    PieChartView pieChart;
+    LineChartView lineChart;
     ArrayList<IndicatorButton> indicatorButtons = new ArrayList<>();
     Spinner spCountries,spYear,spIndicators;
     TextView tvTotalEnergyConsumption,tvRenewableEnergyConsumption,tvFossilFuelEnergyConsumptionPanel,tvOtherEnergyConsumptionPanel;
-    LinearLayout indicatorPanel, chartPanel;
+    LinearLayout indicatorPanel;
 
     public AlertDialog loadingDialog;
 
@@ -137,7 +127,8 @@ public class MainActivity extends AppCompatActivity {
 
         hasInternetConnection = false;
 
-        chart = (PieChartView) findViewById(R.id.mainChart);
+        pieChart = (PieChartView) findViewById(R.id.mainChart);
+        lineChart = (LineChartView) findViewById(R.id.secondaryChart);
 
         spCountries = (Spinner) findViewById(R.id.spCountries);
         spYear = (Spinner) findViewById(R.id.spYear);
@@ -147,7 +138,6 @@ public class MainActivity extends AppCompatActivity {
         tvFossilFuelEnergyConsumptionPanel = (TextView) findViewById(R.id.tvFossilFuelEnergyConsumptionPanel);
         tvOtherEnergyConsumptionPanel = (TextView) findViewById(R.id.tvOtherEnergyConsumptionPanel);
 
-        chartPanel = (LinearLayout) findViewById(R.id.chartPanel);
         indicatorPanel = (LinearLayout) findViewById(R.id.indicatorPanel);
         setupIndicatorPanel();
 
@@ -223,8 +213,9 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         initSpinners();
-                        setupChart();
+                        setupPieChart();
                         updateIndicatorButtons();
+                        setupLineChart();
 
                         loadingDialog.dismiss();
                     }
@@ -261,6 +252,7 @@ public class MainActivity extends AppCompatActivity {
         };
 
         int[] colors = {
+                // Android color guidelines: https://www.google.com/design/spec/style/color.html
                 Color.parseColor("#795548"), // brown
                 Color.parseColor("#FF9800"), // orange
                 Color.parseColor("#009688"), // teal
@@ -306,7 +298,8 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             v.setAlpha(1);
                         }
-                        setupChart();
+                        setupPieChart();
+                        setupLineChart();
                     }
                 });
 
@@ -384,12 +377,13 @@ public class MainActivity extends AppCompatActivity {
 
                 //updateIndicatorSpinner(selectedCountry);
 
-                updateData(selectedCountry, spYear.getSelectedItemPosition() + 1990);
+                updateData(selectedCountry, spYear.getSelectedItemPosition() + dateMin);
 
                 if (firstLoad) {
                     firstLoad = false;
                 } else {
-                    setupChart();
+                    setupPieChart();
+                    setupLineChart();
                     updateIndicatorButtons();
                 }
             }
@@ -401,7 +395,7 @@ public class MainActivity extends AppCompatActivity {
 
         List<String> spinnerArrayYear = new ArrayList<String>();
 
-        for (int i = 1990; i <= 2012; ++i){
+        for (int i = dateMin; i <= dateMax; ++i){
             spinnerArrayYear.add(String.valueOf(i));
         }
 
@@ -413,12 +407,12 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                updateData(Countries.getCountry(spCountries.getSelectedItemPosition()), spYear.getSelectedItemPosition() + 1990);
+                updateData(Countries.getCountry(spCountries.getSelectedItemPosition()), spYear.getSelectedItemPosition() + dateMin);
 
                 if (firstLoad) {
                     firstLoad = false;
                 } else {
-                    setupChart();
+                    setupPieChart();
                     updateIndicatorButtons();
                 }
             }
@@ -534,7 +528,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    protected void setupChart() {
+    protected void setupPieChart() {
         Country country = Countries.getCountry(spCountries.getSelectedItem().toString());
         Log.d(TAG, "Country: " + country.getName());
         String date = spYear.getSelectedItem().toString();
@@ -567,8 +561,43 @@ public class MainActivity extends AppCompatActivity {
         chartData.setHasCenterCircle(true);
         chartData.setSlicesSpacing(0);
 
-        chart.setPieChartData(chartData); // Also refreshes chart
-        chart.animate();
+        pieChart.setPieChartData(chartData); // Also refreshes chart
+        pieChart.animate();
+    }
+
+    protected void setupLineChart() {
+        Country country = Countries.getCountry(spCountries.getSelectedItem().toString());
+
+        // Define lines for chart
+        ArrayList<Line> lines = new ArrayList<>();
+        ArrayList<PointValue> pointValues;
+        for (IndicatorButton indicatorButton : indicatorButtons) {
+            // Only get values for enabled indicators
+            if (!indicatorButton.isEnabled()) {
+                continue;
+            }
+
+            // Define points for this line
+            pointValues = new ArrayList<>();
+            for (int i=dateMin; i<dateMax; i++) {
+                Value value = country.getIndicator(indicatorButton.getIndicatorId()).getValue(String.valueOf(i));
+
+                if (value != null) {
+                    pointValues.add(new PointValue(i, value.getValue()));
+                }
+            }
+
+            lines.add(new Line(pointValues).setColor(indicatorButton.getColor()));
+        }
+
+        // Set chart data
+        LineChartData chartData = new LineChartData();
+        chartData.setLines(lines);
+        chartData.setAxisXBottom(new Axis().setHasLines(true));
+        chartData.setAxisYLeft(new Axis());
+
+        lineChart.setLineChartData(chartData); // Also refreshes chart
+        lineChart.animate();
     }
 
     private void initData(){
@@ -623,8 +652,8 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "END OF DATA");
     }
 
-    public PieChartView getChart() {
-        return chart;
+    public PieChartView getPieChart() {
+        return pieChart;
     }
 
     public ArrayList<IndicatorButton> getIndicatorButtons() {

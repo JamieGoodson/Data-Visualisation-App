@@ -133,7 +133,7 @@ public class DataRetrieverThread extends Thread {
                 date = dataForThisYear.getString("date");
                 value = dataForThisYear.getString("value");
 
-                if ((!value.equals("null")) && (Integer.parseInt(date) >= 1990) && (Integer.parseInt(date) <= 2012)) { // Skip null and pre-1990/post-20012 values (to reduces holes in data)
+                if ((!value.equals("null")) && (Integer.parseInt(date) >= MainActivity.dateMin) && (Integer.parseInt(date) <= MainActivity.dateMax)) { // Skip null and pre-1990/post-20012 values (to reduces holes in data)
                     indicator.addValue(new Value(date, Float.parseFloat(value)));
                 }
             }

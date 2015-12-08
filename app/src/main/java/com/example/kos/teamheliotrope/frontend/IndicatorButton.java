@@ -37,7 +37,7 @@ public class IndicatorButton {
                 for (IndicatorButton indicatorButton : mainActivity.getIndicatorButtons()) {
                     if (!indicatorButton.equals(IndicatorButton.this)) { // Don't include this layout
                         indicatorButton.getLayout().setAlpha(0.5f); // Disable layout
-                        mainActivity.setupChart();
+                        mainActivity.setupPieChart();
                     }
                 }
 
@@ -53,7 +53,7 @@ public class IndicatorButton {
                 for (IndicatorButton indicatorButton : mainActivity.getIndicatorButtons()) {
                     if (!indicatorButton.equals(IndicatorButton.this)) { // Don't include this layout
                         indicatorButton.getLayout().setAlpha(0.5f); // Disable layout
-                        mainActivity.setupChart();
+                        mainActivity.setupPieChart();
                     }
                 }
 
