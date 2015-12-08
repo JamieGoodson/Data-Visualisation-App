@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int dateMin = 1990;
     public static final int dateMax = 2012;
     public static final String countryQuery = "http://api.worldbank.org/country?per_page=300&region=WLD&format=json";
-    private final String[] indicatorIds = {
+    public final String[] indicatorIds = {
             "1.1_TOTAL.FINAL.ENERGY.CONSUM", // Total final energy consumption (TFEC) (TJ)
             "EG.FEC.RNEW.ZS", // Renewable energy consumption (% of total final energy consumption)
             "2.1.1_SHARE.TRADBIO", // Solid biofuels for traditional uses share of TFEC (%)
@@ -80,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
             "EG.USE.COMM.FO.ZS", // Fossil fuel energy consumption (% of total)
             "EG.USE.COMM.CL.ZS" // Alternative and nuclear energy (% of total energy use)
     };
+    public static int grey = Color.parseColor("#616161");
 
     protected boolean hasInternetConnection;
 
@@ -133,7 +134,6 @@ public class MainActivity extends AppCompatActivity {
         lineChart = (LineChartView) findViewById(R.id.secondaryChart);
 
         lineChart.setInteractive(false);
-        //lineChart.setZoomEnabled(false);
 
         spCountries = (Spinner) findViewById(R.id.spCountries);
         spYear = (Spinner) findViewById(R.id.spYear);
@@ -674,8 +674,8 @@ public class MainActivity extends AppCompatActivity {
         // Set chart data
         LineChartData chartData = new LineChartData();
         chartData.setLines(lines);
-        chartData.setAxisXBottom(new Axis().setHasLines(true));
-        chartData.setAxisYLeft(new Axis());
+        chartData.setAxisXBottom(new Axis().setHasLines(true).setTextColor(grey));
+        chartData.setAxisYLeft(new Axis().setTextColor(grey));
 
         lineChart.setLineChartData(chartData); // Also refreshes chart
         lineChart.animate();
