@@ -140,11 +140,12 @@ public class DataRetrieverThread extends Thread {
                         country.nullValueCount = country.nullValueCount + 1;
                     }
                 }
-            }
 
-            // Remove country from Countries if it has too many null values
-            if (country.nullValueCount > 5) {
-                Countries.removeCountry(country);
+                // Remove country from Countries if it has too many null values.
+                if (country.nullValueCount > 5) {
+                    Countries.removeCountry(country);
+                    break;
+                }
             }
 
         } catch (JSONException e) {

@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -648,7 +649,16 @@ public class MainActivity extends AppCompatActivity {
     private void initData(){
 
         // Create a pool of threads - limits number of threads to avoid JVM crashes
-        ExecutorService executor = Executors.newFixedThreadPool(10);
+        int maxThreadCount;
+        if (Build.FINGERPRINT.contains("generic")) {
+            Log.d(TAG, "Emulator device detected. Using low max thread count to prevent crashes.");
+            maxThreadCount = 10;
+        } else {
+            Log.d(TAG, "Non-emulator device detected.");
+            maxThreadCount = 30;
+        }
+
+        ExecutorService executor = Executors.newFixedThreadPool(maxThreadCount);
         long startTime = System.nanoTime();
 
         // Iterate through each country
@@ -704,6 +714,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void displayCountriesNullCounts() {
+        Log.d(TAG, "Total countries: " + Countries.getCountries().size());
         for (Country country : Countries.getCountries()) {
             Log.d(TAG, String.format("%s: %d", country.getName(), country.getNullValueCount()));
         }
