@@ -151,7 +151,7 @@
         android:layout_alignParentStart="true">
 
         <LinearLayout
-            android:id="@+id/bottomRightPanel"
+            android:id="@+id/leftStatsPanel"
             android:orientation="vertical"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -256,7 +256,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/bottomMiddlePanel"
+            android:id="@+id/chartPanel"
             android:orientation="vertical"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -271,7 +271,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/bottomLeftPanel"
+            android:id="@+id/indicatorPanel"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="0.3"

@@ -2,37 +2,39 @@ package com.example.kos.teamheliotrope.frontend;
 
 import android.os.Handler;
 import android.view.View;
-import android.widget.Button;
+import android.widget.LinearLayout;
 
-public class EnergyButton {
+public class IndicatorButton {
     MainActivity mainActivity;
-    Button button;
+    LinearLayout layout;
+    String indicatorTitle;
     String indicatorId;
     int color;
     int clickCount = 0;
 
-    public EnergyButton(MainActivity activity, Button button, String indicatorId, int color) {
+    public IndicatorButton(MainActivity activity, LinearLayout layout, String indicatorId, String indicatorTitle, int color) {
         this.mainActivity = activity;
-        this.button = button;
+        this.layout = layout;
         this.indicatorId = indicatorId;
+        this.indicatorTitle = indicatorTitle;
         this.color = color;
 
-        button.setBackgroundColor(color);
+        this.layout.setBackgroundColor(color);
         setOnLongClickListener();
     }
 
 
     /**
-     * Set onLongClickListener for button.
+     * Set onLongClickListener for layout.
      * When triggered, all buttons except this one will be disabled.
      */
     private void setOnLongClickListener() {
-        this.button.setOnLongClickListener(new View.OnLongClickListener() {
+        layout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                for (EnergyButton energyButton : mainActivity.getEnergyButtons()) {
-                    if (!energyButton.equals(EnergyButton.this)) { // Don't include this button
-                        energyButton.getButton().setAlpha(0.5f); // Disable button
+                for (IndicatorButton indicatorButton : mainActivity.getIndicatorButtons()) {
+                    if (!indicatorButton.equals(IndicatorButton.this)) { // Don't include this layout
+                        indicatorButton.getLayout().setAlpha(0.5f); // Disable layout
                         mainActivity.setupChart();
                     }
                 }
@@ -46,7 +48,7 @@ public class EnergyButton {
      * Set on click listener that caters for single and double clicks
      */
     private void setOnClickListener() {
-        button.setOnClickListener(new View.OnClickListener() {
+        layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 clickCount++; // Increment click count
@@ -76,8 +78,8 @@ public class EnergyButton {
         });
     }
 
-    public Button getButton() {
-        return button;
+    public LinearLayout getLayout() {
+        return layout;
     }
 
     public String getIndicatorId() {
@@ -89,6 +91,6 @@ public class EnergyButton {
     }
 
     public boolean isEnabled() {
-        return (button.getAlpha() == 1);
+        return (layout.getAlpha() == 1);
     }
 }

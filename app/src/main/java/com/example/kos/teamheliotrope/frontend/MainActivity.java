@@ -17,6 +17,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
@@ -26,7 +28,6 @@ import com.example.kos.teamheliotrope.backend.Countries;
 import com.example.kos.teamheliotrope.backend.Country;
 import com.example.kos.teamheliotrope.backend.Indicator;
 import com.example.kos.teamheliotrope.backend.Value;
-import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
@@ -35,12 +36,10 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import lecho.lib.hellocharts.model.ChartData;
 import lecho.lib.hellocharts.model.PieChartData;
 import lecho.lib.hellocharts.model.SliceValue;
 import lecho.lib.hellocharts.view.PieChartView;
@@ -84,9 +83,10 @@ public class MainActivity extends AppCompatActivity {
 
     //Views from activity_main.xml that we need reference to
     PieChartView chart;
-    EnergyButton[] energyButtons;
+    ArrayList<IndicatorButton> indicatorButtons = new ArrayList<>();
     Spinner spCountries,spYear,spIndicators;
     TextView tvTotalEnergyConsumption,tvRenewableEnergyConsumption,tvFossilFuelEnergyConsumptionPanel,tvOtherEnergyConsumptionPanel;
+    LinearLayout indicatorPanel = (LinearLayout) findViewById(R.id.indicatorPanel);
 
     public AlertDialog loadingDialog;
 
@@ -125,18 +125,18 @@ public class MainActivity extends AppCompatActivity {
 
         chart = (PieChartView) findViewById(R.id.mainChart);
 
-        energyButtons = new EnergyButton[] {
-                new EnergyButton(this, (Button) findViewById(R.id.btnFossil), "EG.USE.COMM.FO.ZS", Color.parseColor("#795548") /* brown */),
-                new EnergyButton(this, (Button) findViewById(R.id.btnNuclear), "EG.USE.COMM.CL.ZS", Color.parseColor("#FF9800") /* orange */),
-                new EnergyButton(this, (Button) findViewById(R.id.btnMarine), "2.1.10_SHARE.MARINE", Color.parseColor("#009688") /* teal */),
-                new EnergyButton(this, (Button) findViewById(R.id.btnBiofuel), "2.1.4_SHARE.BIOFUELS", Color.parseColor("#4CAF50") /* green */),
-                new EnergyButton(this, (Button) findViewById(R.id.btnHydro), "2.1.3_SHARE.HYDRO", Color.parseColor("#2196F3") /* blue */),
-                new EnergyButton(this, (Button) findViewById(R.id.btnWind), "2.1.5_SHARE.WIND", Color.parseColor("#CDDC39") /* lime */),
-                new EnergyButton(this, (Button) findViewById(R.id.btnSolar), "2.1.6_SHARE.SOLAR", Color.parseColor("#FFEB3B") /* yellow */),
-                new EnergyButton(this, (Button) findViewById(R.id.btnGeothermal), "2.1.7_SHARE.GEOTHERMAL", Color.parseColor("#F44336") /* red */),
-                new EnergyButton(this, (Button) findViewById(R.id.btnWaste), "2.1.8_SHARE.WASTE", Color.parseColor("#9E9E9E") /* grey */),
-                new EnergyButton(this, (Button) findViewById(R.id.btnBiogas), "2.1.9_SHARE.BIOGAS", Color.parseColor("#3F51B5") /* indigo */),
-        };
+/*        indicatorButtons = new IndicatorButton[] {
+                new IndicatorButton(this, (Button) findViewById(R.id.btnFossil), "EG.USE.COMM.FO.ZS", Color.parseColor("#795548") *//* brown *//*),
+                new IndicatorButton(this, (Button) findViewById(R.id.btnNuclear), "EG.USE.COMM.CL.ZS", Color.parseColor("#FF9800") *//* orange *//*),
+                new IndicatorButton(this, (Button) findViewById(R.id.btnMarine), "2.1.10_SHARE.MARINE", Color.parseColor("#009688") *//* teal *//*),
+                new IndicatorButton(this, (Button) findViewById(R.id.btnBiofuel), "2.1.4_SHARE.BIOFUELS", Color.parseColor("#4CAF50") *//* green *//*),
+                new IndicatorButton(this, (Button) findViewById(R.id.btnHydro), "2.1.3_SHARE.HYDRO", Color.parseColor("#2196F3") *//* blue *//*),
+                new IndicatorButton(this, (Button) findViewById(R.id.btnWind), "2.1.5_SHARE.WIND", Color.parseColor("#CDDC39") *//* lime *//*),
+                new IndicatorButton(this, (Button) findViewById(R.id.btnSolar), "2.1.6_SHARE.SOLAR", Color.parseColor("#FFEB3B") *//* yellow *//*),
+                new IndicatorButton(this, (Button) findViewById(R.id.btnGeothermal), "2.1.7_SHARE.GEOTHERMAL", Color.parseColor("#F44336") *//* red *//*),
+                new IndicatorButton(this, (Button) findViewById(R.id.btnWaste), "2.1.8_SHARE.WASTE", Color.parseColor("#9E9E9E") *//* grey *//*),
+                new IndicatorButton(this, (Button) findViewById(R.id.btnBiogas), "2.1.9_SHARE.BIOGAS", Color.parseColor("#3F51B5") *//* indigo *//*),
+        };*/
 
         spCountries = (Spinner) findViewById(R.id.spCountries);
         spYear = (Spinner) findViewById(R.id.spYear);
@@ -145,6 +145,8 @@ public class MainActivity extends AppCompatActivity {
         tvRenewableEnergyConsumption = (TextView) findViewById(R.id.tvRenewableEnergyConsumption);
         tvFossilFuelEnergyConsumptionPanel = (TextView) findViewById(R.id.tvFossilFuelEnergyConsumptionPanel);
         tvOtherEnergyConsumptionPanel = (TextView) findViewById(R.id.tvOtherEnergyConsumptionPanel);
+
+        setupIndicatorPanel();
 
         //Testing internet connection
         Thread thread = new Thread(new Runnable() {
@@ -219,8 +221,96 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Toggles button by adjusting transparency (but does not actually disable). Chart is then reinitialised.
-     * @param v A button
+     * Populate the indicator panel with buttons/text views
+     */
+    private void setupIndicatorPanel() {
+        String[] indicatorTitles = {
+                "Fossil fuels",
+                "Nuclear",
+                "Marine",
+                "Biofuel",
+                "Hydro",
+                "Wind",
+                "Solar",
+                "Geothermal",
+                "Waste",
+                "Biogas"
+        };
+
+        String[] indicators = {
+                "EG.USE.COMM.FO.ZS", // fossil
+                "EG.USE.COMM.CL.ZS", // nuclear
+                "2.1.10_SHARE.MARINE",
+                "2.1.4_SHARE.BIOFUELS",
+                "2.1.3_SHARE.HYDRO",
+                "2.1.5_SHARE.WIND",
+                "2.1.6_SHARE.SOLAR",
+                "2.1.7_SHARE.GEOTHERMAL",
+                "2.1.8_SHARE.WASTE",
+                "2.1.9_SHARE.BIOGAS"
+        };
+
+        int[] colors = {
+                Color.parseColor("#795548"), // brown
+                Color.parseColor("#FF9800"), // orange
+                Color.parseColor("#009688"), // teal
+                Color.parseColor("#4CAF50"), // green
+                Color.parseColor("#2196F3"), // blue
+                Color.parseColor("#CDDC39"), // lime
+                Color.parseColor("#FFEB3B"), // yellow
+                Color.parseColor("#F44336"), // red
+                Color.parseColor("#9E9E9E"), // grey
+                Color.parseColor("#3F51B5"), // indigo
+        };
+
+        int[] icons = {
+                R.drawable.fossil,
+                R.drawable.nuclear,
+                R.drawable.marine,
+                R.drawable.biofuel,
+                R.drawable.hydro,
+                R.drawable.wind,
+                R.drawable.solar,
+                R.drawable.geothermal,
+                R.drawable.waste,
+                R.drawable.biogas
+        };
+
+        for (int i=0; i<10; i+=2) {
+            LinearLayout row = new LinearLayout(this);
+
+            for (int c=0; c<2; c++) {
+                // Column (layout also acts as button)
+                LinearLayout column = new LinearLayout(this);
+                IndicatorButton indicatorButton = new IndicatorButton(this, column, indicators[i+c], indicatorTitles[i+c], colors[i+c]);
+                indicatorButtons.add(indicatorButton);
+
+                // Icon
+                LinearLayout iconLayout = new LinearLayout(this);
+                ImageView icon = new ImageView(this);
+                icon.setImageResource(icons[i+c]);
+                iconLayout.addView(icon);
+
+                // Description
+                LinearLayout descLayout = new LinearLayout(this);
+                TextView title = new TextView(this);
+                TextView value = new TextView(this);
+                descLayout.addView(title);
+                descLayout.addView(value);
+
+
+                column.addView(iconLayout);
+                column.addView(descLayout);
+                row.addView(column);
+            }
+
+            indicatorPanel.addView(row);
+        }
+    }
+
+    /**
+     * Toggles layout by adjusting transparency (but does not actually disable). Chart is then reinitialised.
+     * @param v A layout
      */
     public void toggleButton(View v) {
         Button button = (Button) v;
@@ -390,21 +480,21 @@ public class MainActivity extends AppCompatActivity {
 
         // Define values for chart
         ArrayList<SliceValue> slices = new ArrayList<>();
-        for (EnergyButton energyButton : energyButtons) {
+        for (IndicatorButton indicatorButton : indicatorButtons) {
 
             // Only get values for enabled indicators
-            if (!energyButton.isEnabled()) {
+            if (!indicatorButton.isEnabled()) {
                 continue;
             }
 
-            Value value = country.getIndicator(energyButton.getIndicatorId()).getValue(date);
+            Value value = country.getIndicator(indicatorButton.getIndicatorId()).getValue(date);
 
             // TODO: Add slice to chart that represents missing data (to prevent misrepresentation of data)
             // Skip null values
             if (value != null) {
                 slices.add(new SliceValue(
                         value.getValue(),
-                        energyButton.getColor()
+                        indicatorButton.getColor()
                 ));
             }
         }
@@ -427,9 +517,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Build a list of all selected indicator ids
         ArrayList<String> selectedIndicatorIds = new ArrayList<>();
-        for (EnergyButton energyButton : energyButtons) {
-            if (energyButton.getButton().getAlpha() == 1) {
-                selectedIndicatorIds.add(energyButton.getIndicatorId());
+        for (IndicatorButton indicatorButton : indicatorButtons) {
+            if (indicatorButton.getLayout().getAlpha() == 1) {
+                selectedIndicatorIds.add(indicatorButton.getIndicatorId());
             }
         }
 
@@ -491,7 +581,7 @@ public class MainActivity extends AppCompatActivity {
     private void initData(){
 
         // Create a pool of threads - limits number of threads to avoid JVM crashes
-        ExecutorService executor = Executors.newFixedThreadPool(40);
+        ExecutorService executor = Executors.newFixedThreadPool(10);
         long startTime = System.nanoTime();
 
         // Iterate through each country
@@ -533,8 +623,9 @@ public class MainActivity extends AppCompatActivity {
     public PieChartView getChart() {
         return chart;
     }
-    public EnergyButton[] getEnergyButtons() {
-        return energyButtons;
+
+    public ArrayList<IndicatorButton> getIndicatorButtons() {
+        return indicatorButtons;
     }
 
     public void hideSystemUi() {
