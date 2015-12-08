@@ -1,8 +1,9 @@
 package com.example.kos.teamheliotrope.backend;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Indicator {
+public class Indicator implements Serializable {
     public static final String TAG = "INDICATOR";
     String id;
     String title;

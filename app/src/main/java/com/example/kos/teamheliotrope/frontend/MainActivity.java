@@ -27,12 +27,27 @@ import com.example.kos.teamheliotrope.R;
 import com.example.kos.teamheliotrope.backend.Countries;
 import com.example.kos.teamheliotrope.backend.Country;
 import com.example.kos.teamheliotrope.backend.Indicator;
+import com.example.kos.teamheliotrope.backend.InternalStorage;
 import com.example.kos.teamheliotrope.backend.Value;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -45,6 +60,12 @@ import lecho.lib.hellocharts.model.SliceValue;
 import lecho.lib.hellocharts.view.PieChartView;
 
 public class MainActivity extends AppCompatActivity {
+
+    File cDir;
+    File fDir;
+
+    public static final String COUNTRYKEY = "COUNTRIES_DATA";
+
     public static final int[] colors = {
             // Android color guidelines: https://www.google.com/design/spec/style/color.html
             Color.parseColor("#F44336"), // red
@@ -102,6 +123,9 @@ public class MainActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_main);
         hideSystemUi();
+
+        cDir = getApplicationContext().getCacheDir();
+        fDir = getApplicationContext().getCacheDir();
 
         // Keep UI hidden
         View decorView = getWindow().getDecorView();
@@ -194,15 +218,27 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 // Check if it has Internet connection
-                if (hasInternetConnection){
+                if (hasInternetConnection) {
                     initCountries();
                     initData();
+                }else{
+                    try {
+                        ArrayList<Country> cachedCountries = (ArrayList<Country>) InternalStorage.readObject(MainActivity.this, COUNTRYKEY);
+                        if (cachedCountries.size() > 0){
+                            Countries.setCountries(cachedCountries);
+                    }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                }
 
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            initSpinners();
-                            setupChart();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        initSpinners();
+                        setupChart();
 
 /*                            chart.getLegend().setEnabled(false);
                             chart.setDescription("*values are % of TFEC");
@@ -210,19 +246,13 @@ public class MainActivity extends AppCompatActivity {
                             //chart.setCenterText("Test");
                             //chart.setCenterTextSize(40);
 
-                            loadingDialog.dismiss();
-                        }
-                    });
-                }
-
-                //displayData(); // Comment out when not debugging
+                        loadingDialog.dismiss();
+                    }
+                });
             }
         }.start();
     }
-
-    /**
-     * Populate the indicator panel with buttons/text views
-     */
+    
     private void setupIndicatorPanel() {
         String[] indicatorTitles = {
                 "Fossil fuels",
@@ -595,6 +625,8 @@ public class MainActivity extends AppCompatActivity {
                 Runnable dataRetrieverThread = new DataRetrieverThread(this, country, country.getId(), indicatorId);
                 executor.execute(dataRetrieverThread);
             }
+
+
         }
         executor.shutdown();
 
@@ -603,6 +635,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Log.d(TAG, String.format("All threads finished (took %fs).", (System.nanoTime() - startTime) / Math.pow(10, 9)));
+
+        try {
+            InternalStorage.writeObject(this,COUNTRYKEY,Countries.getCountries());
+            Log.d(TAG,"Countries cached");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void displayData() {

@@ -2,10 +2,11 @@ package com.example.kos.teamheliotrope.backend;
 
 import android.util.Log;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class Country {
+public class Country implements Serializable{
     public static final String TAG = "COUNTRY";
     String name;
     String id;
