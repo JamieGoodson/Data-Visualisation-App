@@ -26,6 +26,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.kos.teamheliotrope.R;
 import com.example.kos.teamheliotrope.backend.Countries;
@@ -192,23 +193,22 @@ public class MainActivity extends AppCompatActivity {
         }
 
         loadingDialog = new AlertDialog.Builder(this).setTitle("Loading...").setMessage("Initialising...").setCancelable(false).show();
+        final Handler toastHandler = new Handler();
 
         new Thread() {
             @Override
             public void run() {
-                // Check if it has Internet connection
-                if (hasInternetConnection) {
-                    initCountries();
-                    initData();
-                    displayCountriesNullCounts(); // Debug
-                } else {
+                Log.d(TAG, "Checking for cache file...");
+                if (InternalStorage.cacheExists(MainActivity.this, COUNTRYKEY)) { // If cache exists, read data from it
+                    Log.d(TAG, "Cache file found. Attempting to read data from it...");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            loadingDialog.setMessage("Reading from cache...");
+                        }
+                    });
+
                     try {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                loadingDialog.setMessage("Reading from cache...");
-                            }
-                        });
                         ArrayList<Country> cachedCountries = (ArrayList<Country>) InternalStorage.readObject(MainActivity.this, COUNTRYKEY);
                         if (cachedCountries.size() > 0){
                             Countries.setCountries(cachedCountries);
@@ -217,6 +217,27 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     } catch (ClassNotFoundException e) {
                         e.printStackTrace();
+                    }
+                } else if (hasInternetConnection) { // Else if connected to internet, fetch data
+                    Log.d(TAG, "No cache file found. Performing first time setup.");
+                    initCountries();
+                    initData();
+                    displayCountriesNullCounts(); // Debug
+                } else { // No internet connection or cache file
+                    Log.d(TAG, "No cache file found, and no internet connection!");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            loadingDialog.setMessage("No internet connection. Cannot perform first time setup. Please connect to the internet and then restart the app.");
+                        }
+                    });
+
+                    while (true) {
+                        try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
 
@@ -231,6 +252,19 @@ public class MainActivity extends AppCompatActivity {
                         loadingDialog.dismiss();
                     }
                 });
+
+                toastHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast toast = Toast.makeText(MainActivity.this, "↓ Scroll down for more ↓", Toast.LENGTH_LONG);
+                                toast.show();
+                            }
+                        });
+                    }
+                }, 5000);
             }
         }.start();
     }
@@ -252,15 +286,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onGlobalLayout() {
                 LinearLayout.LayoutParams params;
+                int height = indicatorPanel.getHeight();
 
                 // Set height of main-chart-and-stats layout to height of screen
                 params = (LinearLayout.LayoutParams) mainChartAndStatsLayout.getLayoutParams();
-                params.height = indicatorPanel.getHeight();
+                params.height = height;
                 mainChartAndStatsLayout.setLayoutParams(params);
 
                 // Set height of secondary chart layout to height of screen
                 params = (LinearLayout.LayoutParams) secondaryChartLayout.getLayoutParams();
-                params.height = indicatorPanel.getHeight();
+                params.height = height;
                 secondaryChartLayout.setLayoutParams(params);
             }
         });
@@ -672,8 +707,6 @@ public class MainActivity extends AppCompatActivity {
                 Runnable dataRetrieverThread = new DataRetrieverThread(this, country, country.getId(), indicatorId);
                 executor.execute(dataRetrieverThread);
             }
-
-
         }
         executor.shutdown();
 
@@ -714,6 +747,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void displayCountriesNullCounts() {
+        Log.d(TAG, "====== Country null value counts ======");
         Log.d(TAG, "Total countries: " + Countries.getCountries().size());
         for (Country country : Countries.getCountries()) {
             Log.d(TAG, String.format("%s: %d", country.getName(), country.getNullValueCount()));
