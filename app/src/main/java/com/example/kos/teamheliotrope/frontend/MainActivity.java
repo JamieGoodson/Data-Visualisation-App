@@ -3,6 +3,7 @@ package com.example.kos.teamheliotrope.frontend;
 import com.example.kos.teamheliotrope.backend.CountryInfoThread;
 import com.example.kos.teamheliotrope.backend.DataRetrieverThread;
 
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
@@ -14,11 +15,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
@@ -107,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<IndicatorButton> indicatorButtons = new ArrayList<>();
     Spinner spCountries,spYear,spIndicators;
     TextView tvTotalEnergyConsumption,tvRenewableEnergyConsumption,tvFossilFuelEnergyConsumptionPanel,tvOtherEnergyConsumptionPanel;
-    LinearLayout indicatorPanel = (LinearLayout) findViewById(R.id.indicatorPanel);
+    LinearLayout indicatorPanel;
 
     public AlertDialog loadingDialog;
 
@@ -170,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
         tvFossilFuelEnergyConsumptionPanel = (TextView) findViewById(R.id.tvFossilFuelEnergyConsumptionPanel);
         tvOtherEnergyConsumptionPanel = (TextView) findViewById(R.id.tvOtherEnergyConsumptionPanel);
 
+        indicatorPanel = (LinearLayout) findViewById(R.id.indicatorPanel);
         setupIndicatorPanel();
 
         //Testing internet connection
@@ -221,12 +225,12 @@ public class MainActivity extends AppCompatActivity {
                 if (hasInternetConnection) {
                     initCountries();
                     initData();
-                }else{
+                } else {
                     try {
                         ArrayList<Country> cachedCountries = (ArrayList<Country>) InternalStorage.readObject(MainActivity.this, COUNTRYKEY);
                         if (cachedCountries.size() > 0){
                             Countries.setCountries(cachedCountries);
-                    }
+                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     } catch (ClassNotFoundException e) {
@@ -239,12 +243,6 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         initSpinners();
                         setupChart();
-
-/*                            chart.getLegend().setEnabled(false);
-                            chart.setDescription("*values are % of TFEC");
-                            chart.setDescriptionTextSize(20);*/
-                            //chart.setCenterText("Test");
-                            //chart.setCenterTextSize(40);
 
                         loadingDialog.dismiss();
                     }
@@ -306,27 +304,59 @@ public class MainActivity extends AppCompatActivity {
                 R.drawable.biogas
         };
 
+        LinearLayout.LayoutParams params;
         for (int i=0; i<10; i+=2) {
             LinearLayout row = new LinearLayout(this);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1f);
+            row.setLayoutParams(params);
 
             for (int c=0; c<2; c++) {
                 // Column (layout also acts as button)
                 LinearLayout column = new LinearLayout(this);
+                column.setOrientation(LinearLayout.HORIZONTAL);
                 IndicatorButton indicatorButton = new IndicatorButton(this, column, indicators[i+c], indicatorTitles[i+c], colors[i+c]);
+                column.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (v.getAlpha() == 1) {
+                            v.setAlpha(0.5f);
+                        } else {
+                            v.setAlpha(1);
+                        }
+                        setupChart();
+                    }
+                });
                 indicatorButtons.add(indicatorButton);
+
+                params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1f);
+                params.setMargins(10, 10, 10, 10);
+                column.setLayoutParams(params);
+
 
                 // Icon
                 LinearLayout iconLayout = new LinearLayout(this);
                 ImageView icon = new ImageView(this);
-                icon.setImageResource(icons[i+c]);
+                icon.setImageResource(icons[i + c]);
                 iconLayout.addView(icon);
+
+                params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1f);
+                iconLayout.setLayoutParams(params);
+
 
                 // Description
                 LinearLayout descLayout = new LinearLayout(this);
+                descLayout.setOrientation(LinearLayout.VERTICAL);
                 TextView title = new TextView(this);
+                title.setText("Title");
                 TextView value = new TextView(this);
+                value.setText("0%");
                 descLayout.addView(title);
                 descLayout.addView(value);
+
+
+                params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1f);
+                descLayout.setLayoutParams(params);
 
 
                 column.addView(iconLayout);
@@ -336,20 +366,6 @@ public class MainActivity extends AppCompatActivity {
 
             indicatorPanel.addView(row);
         }
-    }
-
-    /**
-     * Toggles layout by adjusting transparency (but does not actually disable). Chart is then reinitialised.
-     * @param v A layout
-     */
-    public void toggleButton(View v) {
-        Button button = (Button) v;
-        if (button.getAlpha() == 1) {
-            button.setAlpha(0.5f);
-        } else {
-            button.setAlpha(1);
-        }
-        setupChart();
     }
 
     private void initSpinners(){
@@ -368,7 +384,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 Country selectedCountry = Countries.getCountry(position);
 
-                updateIndicatorSpinner(selectedCountry);
+                //updateIndicatorSpinner(selectedCountry);
 
                 updateData(selectedCountry, spYear.getSelectedItemPosition() + 1990);
 
