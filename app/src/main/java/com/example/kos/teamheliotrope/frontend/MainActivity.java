@@ -610,7 +610,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initCountries(){
-        CountryInfoThread countryInfoThread = new CountryInfoThread(countryQuery);
+        CountryInfoThread countryInfoThread = new CountryInfoThread(this,countryQuery);
         countryInfoThread.start();
         try {
             countryInfoThread.join();
