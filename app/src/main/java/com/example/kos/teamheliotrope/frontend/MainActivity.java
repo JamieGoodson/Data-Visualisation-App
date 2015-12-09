@@ -58,6 +58,7 @@ import lecho.lib.hellocharts.view.PieChartView;
 
 public class MainActivity extends AppCompatActivity {
     public static final String COUNTRYKEY = "COUNTRIES_DATA";
+    public static final String DATEKEY = "LAST_CACHE_DATE";
     public static final String TAG = "MAIN_ACTIVITY";
     public static final int dateMin = 1990;
     public static final int dateMax = 2012;
@@ -204,28 +205,66 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 Log.d(TAG, "Checking for cache file...");
                 if (InternalStorage.cacheExists(MainActivity.this, COUNTRYKEY)) { // If cache exists, read data from it
-                    Log.d(TAG, "Cache file found. Attempting to read data from it...");
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            loadingDialog.setMessage("Reading from cache...");
+                    boolean loadAgain = false;
+                    if (InternalStorage.cacheExists(MainActivity.this,DATEKEY)){ // If cache is older than a day try loading again if there's internet connection
+                        try {
+                            long lastCacheTime = (long) InternalStorage.readObject(MainActivity.this,DATEKEY);
+                            if (hasInternetConnection && daysBetweenCaching(System.currentTimeMillis(),lastCacheTime) >= 1){
+                                loadAgain = true;
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
                         }
-                    });
-
-                    try {
-                        ArrayList<Country> cachedCountries = (ArrayList<Country>) InternalStorage.readObject(MainActivity.this, COUNTRYKEY);
-                        if (cachedCountries.size() > 0){
-                            Countries.setCountries(cachedCountries);
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
                     }
+
+                    if (loadAgain){
+                        Log.d(TAG, "Cache file found but older than a day. Retrieving data again...");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                loadingDialog.setMessage("Cache file out of date. Retrieving data again...");
+                            }
+                        });
+                        initCountries();
+                        initData();
+                        try {
+                            InternalStorage.writeObject(MainActivity.this,DATEKEY,System.currentTimeMillis());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        displayCountriesNullCounts(); // Debug
+                    }else{
+                        Log.d(TAG, "Cache file found. Attempting to read data from it...");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                loadingDialog.setMessage("Reading from cache...");
+                            }
+                        });
+
+                        try {
+                            ArrayList<Country> cachedCountries = (ArrayList<Country>) InternalStorage.readObject(MainActivity.this, COUNTRYKEY);
+                            if (cachedCountries.size() > 0){
+                                Countries.setCountries(cachedCountries);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
                 } else if (hasInternetConnection) { // Else if connected to internet, fetch data
                     Log.d(TAG, "No cache file found. Performing first time setup.");
                     initCountries();
                     initData();
+                    try {
+                        InternalStorage.writeObject(MainActivity.this,DATEKEY,System.currentTimeMillis());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     displayCountriesNullCounts(); // Debug
                 } else { // No internet connection or cache file
                     Log.d(TAG, "No cache file found, and no internet connection!");
@@ -271,6 +310,10 @@ public class MainActivity extends AppCompatActivity {
                         });
                     }
                 }, 5000);
+            }
+
+            private long daysBetweenCaching(long currentTimeMillis, long lastCacheTime) {
+                return (currentTimeMillis - lastCacheTime)/86400000; //86400000 is the milliseconds in a day
             }
         }.start();
     }
@@ -712,7 +755,7 @@ public class MainActivity extends AppCompatActivity {
         int maxThreadCount;
         if (Build.FINGERPRINT.contains("generic")) {
             Log.d(TAG, "Emulator device detected. Using low max thread count to prevent crashes.");
-            maxThreadCount = 1;
+            maxThreadCount = 20;
         } else {
             Log.d(TAG, "Non-emulator device detected.");
             maxThreadCount = 30;
