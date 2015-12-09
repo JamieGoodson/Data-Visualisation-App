@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         setContentView(R.layout.activity_main);
         hideSystemUi();
 
@@ -718,7 +718,7 @@ public class MainActivity extends AppCompatActivity {
         int maxThreadCount;
         if (Build.FINGERPRINT.contains("generic")) {
             Log.d(TAG, "Emulator device detected. Using low max thread count to prevent crashes.");
-            maxThreadCount = 10;
+            maxThreadCount = 1;
         } else {
             Log.d(TAG, "Non-emulator device detected.");
             maxThreadCount = 30;
