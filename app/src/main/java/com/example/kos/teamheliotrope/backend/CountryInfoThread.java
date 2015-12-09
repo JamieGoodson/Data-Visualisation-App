@@ -1,6 +1,9 @@
 package com.example.kos.teamheliotrope.backend;
 
+import android.content.Intent;
 import android.util.Log;
+
+import com.example.kos.teamheliotrope.frontend.MainActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,6 +23,7 @@ import java.net.URL;
  */
 public class CountryInfoThread extends Thread {
 
+    MainActivity activity;
     String query;
     JSONArray jsonArray;
 
@@ -27,7 +31,8 @@ public class CountryInfoThread extends Thread {
      * The website query that the countries should be retrieved from
      * @param query website containing country data
      */
-    public CountryInfoThread(String query){
+    public CountryInfoThread(MainActivity activity,String query){
+        this.activity = activity;
         this.query = query;
     }
 
@@ -64,52 +69,44 @@ public class CountryInfoThread extends Thread {
 
     // TODO: Handle what happens when device isn't connected to internet. Currently causes app to crash.
     private JSONArray fetchJSONArray() {
-        // open connection
-        URL url = null;
 
-        try {
-            url = new URL(query);
+        try{
+            // open connection
+            URL url = new URL(query);
+
+            InputStream inStream = url.openStream();
+
+            DataInputStream dataInStream = null;
+
+            if (inStream != null) {
+                dataInStream = new DataInputStream(inStream);
+
+                // buffer to hold chunks as they are read
+                byte[] buffer = new byte[1024];
+                int bufferLength;
+
+                // string builder to hold output
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+                while ((bufferLength = dataInStream.read(buffer)) > 0){
+                    // write buffer into output
+                    output.write(buffer,0,bufferLength);
+                }
+                return new JSONArray(output.toString("UTF-8"));
+            }
         } catch (MalformedURLException e) {
             e.printStackTrace();
-        }
-
-        InputStream inStream = null;
-        try {
-            inStream = url.openStream();
         } catch (IOException e) {
             e.printStackTrace();
-        }
-
-        DataInputStream dataInStream = null;
-        if (inStream != null) {
-            dataInStream = new DataInputStream(inStream);
-        }
-
-        // buffer to hold chunks as they are read
-        byte[] buffer = new byte[1024];
-        int bufferLength;
-
-        // string builder to hold output
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-
-        // read from stream
-        try{
-            while ((bufferLength = dataInStream.read(buffer)) > 0){
-                // write buffer into output
-                output.write(buffer,0,bufferLength);
-            }
-        } catch (IOException e){
-            e.printStackTrace();
-        }
-        try {
-            return new JSONArray(output.toString("UTF-8"));
         } catch (JSONException e) {
             e.printStackTrace();
-            return null;
-        }catch (UnsupportedEncodingException e){
-            e.printStackTrace();
-            return null;
         }
+
+        //Restarts application
+        Intent i = activity.getBaseContext().getPackageManager().getLaunchIntentForPackage(activity.getBaseContext().getPackageName());
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        activity.startActivity(i);
+        return null;
     }
 
 }
