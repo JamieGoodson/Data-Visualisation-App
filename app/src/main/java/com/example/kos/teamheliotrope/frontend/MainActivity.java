@@ -23,6 +23,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
@@ -89,8 +90,9 @@ public class MainActivity extends AppCompatActivity {
     LineChartView lineChart;
     ArrayList<IndicatorButton> indicatorButtons = new ArrayList<>();
     Spinner spCountries,spYear,spIndicators;
-    TextView tvTotalEnergyConsumption,tvRenewableEnergyConsumption,tvFossilFuelEnergyConsumptionPanel,tvOtherEnergyConsumptionPanel;
+    TextView in,tvTotalEnergyConsumption,tvRenewableEnergyConsumption,tvFossilFuelEnergyConsumptionPanel,tvOtherEnergyConsumptionPanel;
     LinearLayout topPanel, mainChartAndStatsLayout, secondaryChartLayout, indicatorPanel;
+    ScrollView contentScrollView;
 
     public AlertDialog loadingDialog;
 
@@ -107,8 +109,38 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         hideSystemUi();
 
+        // === BEGIN DEFINES
         cDir = getApplicationContext().getCacheDir();
         fDir = getApplicationContext().getCacheDir();
+
+        hasInternetConnection = false;
+
+        pieChart = (PieChartView) findViewById(R.id.mainChart);
+        lineChart = (LineChartView) findViewById(R.id.secondaryChart);
+
+        lineChart.setInteractive(false);
+
+        spCountries = (Spinner) findViewById(R.id.spCountries);
+        spYear = (Spinner) findViewById(R.id.spYear);
+
+        in = (TextView) findViewById(R.id.in);
+
+        tvTotalEnergyConsumption = (TextView) findViewById(R.id.tvTotalEnergyConsumption);
+        tvRenewableEnergyConsumption = (TextView) findViewById(R.id.tvRenewableEnergyConsumption);
+        tvFossilFuelEnergyConsumptionPanel = (TextView) findViewById(R.id.tvFossilFuelEnergyConsumptionPanel);
+        tvOtherEnergyConsumptionPanel = (TextView) findViewById(R.id.tvOtherEnergyConsumptionPanel);
+
+        topPanel = (LinearLayout) findViewById(R.id.topPanel);
+        mainChartAndStatsLayout = (LinearLayout) findViewById(R.id.mainChartAndStatsLayout);
+        secondaryChartLayout = (LinearLayout) findViewById(R.id.secondaryChartLayout);
+        indicatorPanel = (LinearLayout) findViewById(R.id.indicatorPanel);
+        contentScrollView = (ScrollView) findViewById(R.id.contentScrollView);
+        // === END DEFINES
+
+
+        setupIndicatorPanel();
+        setHeightOfMainArea();
+        setupScrollView();
 
         // Keep UI hidden
         View decorView = getWindow().getDecorView();
@@ -128,31 +160,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        hasInternetConnection = false;
 
-        pieChart = (PieChartView) findViewById(R.id.mainChart);
-        lineChart = (LineChartView) findViewById(R.id.secondaryChart);
-
-        lineChart.setInteractive(false);
-
-        spCountries = (Spinner) findViewById(R.id.spCountries);
-        spYear = (Spinner) findViewById(R.id.spYear);
-
-        tvTotalEnergyConsumption = (TextView) findViewById(R.id.tvTotalEnergyConsumption);
-        tvRenewableEnergyConsumption = (TextView) findViewById(R.id.tvRenewableEnergyConsumption);
-        tvFossilFuelEnergyConsumptionPanel = (TextView) findViewById(R.id.tvFossilFuelEnergyConsumptionPanel);
-        tvOtherEnergyConsumptionPanel = (TextView) findViewById(R.id.tvOtherEnergyConsumptionPanel);
-
-        topPanel = (LinearLayout) findViewById(R.id.topPanel);
-        mainChartAndStatsLayout = (LinearLayout) findViewById(R.id.mainChartAndStatsLayout);
-        secondaryChartLayout = (LinearLayout) findViewById(R.id.secondaryChartLayout);
-        indicatorPanel = (LinearLayout) findViewById(R.id.indicatorPanel);
-
-        setupIndicatorPanel();
-        setHeightOfMainArea();
-
-
-        //Testing internet connection
+        // Test internet connection
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -192,9 +201,10 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        loadingDialog = new AlertDialog.Builder(this).setTitle("Loading...").setMessage("Initialising...").setCancelable(false).show();
-        final Handler toastHandler = new Handler();
+        loadingDialog = new AlertDialog.Builder(this).setTitle("Please wait...").setMessage("Initialising...").setCancelable(false).show();
 
+        // Setup app
+        final Handler toastHandler = new Handler();
         new Thread() {
             @Override
             public void run() {
@@ -299,6 +309,26 @@ public class MainActivity extends AppCompatActivity {
                 params = (LinearLayout.LayoutParams) secondaryChartLayout.getLayoutParams();
                 params.height = height;
                 secondaryChartLayout.setLayoutParams(params);
+            }
+        });
+    }
+
+    private void setupScrollView() {
+        contentScrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+            @Override
+            public void onScrollChanged() {
+                int posY = contentScrollView.getScrollY();
+                float percent = ((float)posY/contentScrollView.getHeight())*100;
+                float alpha = (100 - percent)/100;
+
+                spYear.setAlpha(alpha);
+                in.setAlpha(alpha);
+
+                for (IndicatorButton indicatorButton : indicatorButtons) {
+                    indicatorButton.getTextView().setAlpha(alpha);
+                }
+
+                Log.d(TAG, String.format("Scroll changed: %d (%f%%)", posY, percent));
             }
         });
     }
