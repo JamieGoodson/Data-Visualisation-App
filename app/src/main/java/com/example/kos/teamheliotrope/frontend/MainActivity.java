@@ -533,7 +533,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateData(Country selectedCountry, int year){
         float totalValue = getValueOfIndicatorCountry(selectedCountry, "1.1_TOTAL.FINAL.ENERGY.CONSUM",year);
         if (totalValue != -1) {
-            tvTotalEnergyConsumption.setText(String.format("%d", Math.round(totalValue)) + " kJ");
+            tvTotalEnergyConsumption.setText(String.format("%d", Math.round(totalValue)) + " TJ");
         } else {
             tvTotalEnergyConsumption.setText("N/A");
         }
