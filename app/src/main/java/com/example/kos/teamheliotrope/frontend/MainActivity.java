@@ -56,10 +56,6 @@ import lecho.lib.hellocharts.view.LineChartView;
 import lecho.lib.hellocharts.view.PieChartView;
 
 public class MainActivity extends AppCompatActivity {
-
-    File cDir;
-    File fDir;
-
     public static final String COUNTRYKEY = "COUNTRIES_DATA";
     public static final String TAG = "MAIN_ACTIVITY";
     public static final int dateMin = 1990;
@@ -110,9 +106,6 @@ public class MainActivity extends AppCompatActivity {
         hideSystemUi();
 
         // === BEGIN DEFINES
-        cDir = getApplicationContext().getCacheDir();
-        fDir = getApplicationContext().getCacheDir();
-
         hasInternetConnection = false;
 
         pieChart = (PieChartView) findViewById(R.id.mainChart);
