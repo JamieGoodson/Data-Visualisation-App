@@ -658,7 +658,6 @@ public class MainActivity extends AppCompatActivity {
 
             Value value = country.getIndicator(indicatorButton.getIndicatorId()).getValue(date);
 
-            // TODO: Add slice to chart that represents missing data (to prevent misrepresentation of data)
             // Skip null values
             if (value != null) {
                 slices.add(new SliceValue(
