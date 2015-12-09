@@ -7,6 +7,7 @@ import com.example.kos.teamheliotrope.backend.DataRetrieverThread;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -312,8 +313,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onScrollChanged() {
                 int posY = contentScrollView.getScrollY();
-                float percent = ((float)posY/contentScrollView.getHeight())*100;
-                float alpha = (100 - percent)/100;
+                float percent = ((float) posY / contentScrollView.getHeight()) * 100;
+                float alpha = (100 - percent) / 100;
 
                 spYear.setAlpha(alpha);
                 in.setAlpha(alpha);
@@ -800,5 +801,23 @@ public class MainActivity extends AppCompatActivity {
         float scale = Resources.getSystem().getDisplayMetrics().density;
 
         return ((int) (dp*scale + 0.5f));
+    }
+
+    public void showHintDialog(View view){
+        AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);
+        dlgAlert.setMessage(
+                "- Select a country and a specific year from the dropdown boxes\n\n" +
+                "- Click on an indicator to toggle select/deselect of that indicator\n\n" +
+                "- Long Press on an indicator to deselect all other indicators\n\n" +
+                "- Scroll down on the pie chart to see a bar chart of the selected indicator(s) energy distribution over time");
+        dlgAlert.setTitle("Hint");
+        dlgAlert.setPositiveButton("Ok",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        //dismiss the dialog
+                    }
+                });
+        dlgAlert.setCancelable(true);
+        dlgAlert.create().show();
     }
 }
