@@ -1,5 +1,7 @@
 package com.example.kos.teamheliotrope.backend;
 
+//~ JDK/Android Imports ========================================
+
 import java.util.ArrayList;
 
 /**
@@ -45,10 +47,18 @@ public class Countries {
         return countries;
     }
 
+    /**
+     * Sets the collection of countries to a passed parameter
+     * @param countries ArrayList of Country objects
+     */
     static public void setCountries(ArrayList<Country> countries){
         Countries.countries = countries;
     }
 
+    /**
+     * Removes Country object from an ArrayList of Countries
+     * @param country Country object
+     */
     static public void removeCountry(Country country) {
         countries.remove(country);
     }

@@ -1,5 +1,7 @@
 package com.example.kos.teamheliotrope.frontend;
 
+//~ JDK/Android Imports ========================================
+
 import com.example.kos.teamheliotrope.backend.CountryInfoThread;
 import com.example.kos.teamheliotrope.backend.DataRetrieverThread;
 
@@ -8,7 +10,6 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -36,8 +37,6 @@ import com.example.kos.teamheliotrope.backend.Indicator;
 import com.example.kos.teamheliotrope.backend.InternalStorage;
 import com.example.kos.teamheliotrope.backend.Value;
 
-
-import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -45,6 +44,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+//~ Non-JDK/Android Imports ====================================
 
 import lecho.lib.hellocharts.model.Axis;
 import lecho.lib.hellocharts.model.Line;
