@@ -19,6 +19,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+/**
+ * Retrieves JSON Array from the World Data Bank and processes the JSON information on a specific Country
+ * for a specific indicator code
+ */
 public class DataRetrieverThread extends Thread {
     final static String TAG = "RETRIEVER_THREAD";
     MainActivity activity;
@@ -28,7 +32,14 @@ public class DataRetrieverThread extends Thread {
     String countryCode;
     String indicatorCode;
 
-
+    /**
+     * Maintains reference to the MainActivity, the Country to get data on, the CountryCode of the
+     * country to retrieve data for, Indicator code of the data to retrieve for that country
+     * @param activity MainActivity reference
+     * @param country Country to fetch data for and store into
+     * @param countryCode Country code of the country
+     * @param indicatorCode Indicator to fetch data on for that specific country
+     */
     public DataRetrieverThread(MainActivity activity, Country country, String countryCode, String indicatorCode) {
         this.activity = activity;
         this.country = country;
@@ -39,6 +50,9 @@ public class DataRetrieverThread extends Thread {
         this.query = "http://api.worldbank.org/countries/" + this.countryCode + "/indicators/" + this.indicatorCode + "?per_page=13888&date=1960:2015&format=json";
     }
 
+    /**
+     * Runs the thread retrieving data for a specific country and indicator
+     */
     @Override
     public void run() {
         Log.d(TAG, String.format("Starting thread for %s, %s (%s)...", countryCode, indicatorCode, query));
@@ -153,6 +167,10 @@ public class DataRetrieverThread extends Thread {
         }
     }
 
+    /**
+     * Returns the JSON Array data
+     * @return JSON Array data
+     */
     public JSONArray getJsonArray() {
         return jsonArray;
     }

@@ -16,16 +16,24 @@ import java.net.URL;
 
 /**
  * Created by tuffail on 03/12/15.
+ * Retrieves JSON Array from the World Data Bank and processes the JSON information, producing Country objects
  */
 public class CountryInfoThread extends Thread {
 
     String query;
     JSONArray jsonArray;
 
+    /**
+     * The website query that the countries should be retrieved from
+     * @param query website containing country data
+     */
     public CountryInfoThread(String query){
         this.query = query;
     }
 
+    /**
+     * Starts the thread, retrieves JSON data and creates Country objects
+     */
     @Override
     public void run() {
         jsonArray = fetchJSONArray();
