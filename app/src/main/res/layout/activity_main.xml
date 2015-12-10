@@ -137,7 +137,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textAppearance="?android:attr/textAppearanceLarge"
-                                android:text="0 kJ"
+                                android:text="0 TJ"
                                 android:textSize="28sp" />
                         </LinearLayout>
 
@@ -227,13 +227,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_below="@id/mainChartAndStatsLayout"
-                    android:padding="5dp"
-                    android:paddingTop="10dp">
+                    >
 
                     <lecho.lib.hellocharts.view.LineChartView
                         android:id="@+id/secondaryChart"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
+                        android:layout_height="match_parent"
+                        android:paddingLeft="5dp"/>
                 </LinearLayout>
             </LinearLayout>
         </ScrollView>
