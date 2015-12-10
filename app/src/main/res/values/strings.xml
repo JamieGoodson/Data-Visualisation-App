@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Data Visualiser</string>
+    <string name="app_name">Energy Consumption</string>
 
     <string name="hello_world">BitBucket Test</string>
     <string name="action_settings">Settings</string>
