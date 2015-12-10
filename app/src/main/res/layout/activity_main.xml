@@ -4,14 +4,15 @@
 
     <ImageButton
         android:id="@+id/hintButton"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="20dp"
+        android:layout_height="25dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_marginTop="5dp"
-        android:layout_marginLeft="5dp"
-        android:background="@color/blue"
-        android:onClick="showHintDialog"/>
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:background="@drawable/question_mark"
+        android:onClick="showHintDialog"
+        android:alpha="0.8" />
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
@@ -44,7 +45,9 @@
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@+id/tvDistributionOfEnergy"
                 android:layout_toRightOf="@+id/tvDistributionOfEnergy"
-                android:layout_gravity="center" />
+                android:layout_gravity="center"
+                android:spinnerMode="dialog"
+                />
 
             <TextView
                 android:id="@+id/in"
@@ -62,7 +65,8 @@
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/tvFor"
                 android:layout_toEndOf="@+id/tvFor"
-                android:layout_alignBottom="@+id/tvFor" />
+                android:layout_alignBottom="@+id/tvFor"
+                android:spinnerMode="dialog"/>
         </LinearLayout>
 
         <LinearLayout

@@ -806,11 +806,11 @@ public class MainActivity extends AppCompatActivity {
     public void showHintDialog(View view){
         AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);
         dlgAlert.setMessage(
-                "- Select a country and a specific year from the dropdown boxes\n\n" +
-                "- Click on an indicator to toggle select/deselect of that indicator\n\n" +
-                "- Long Press on an indicator to deselect all other indicators\n\n" +
-                "- Scroll down on the pie chart to see a bar chart of the selected indicator(s) energy distribution over time");
-        dlgAlert.setTitle("Hint");
+                "- Select a country and a specific year from the dropdown boxes in the title\n\n" +
+                "- Click on an indicator to toggle select/deselect it\n\n" +
+                "- Long press on an indicator to deselect all other indicators\n\n" +
+                "- Scroll down on the pie chart to see a line chart of the selected indicator(s) energy consumption over time");
+        dlgAlert.setTitle("How to use");
         dlgAlert.setPositiveButton("Ok",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
