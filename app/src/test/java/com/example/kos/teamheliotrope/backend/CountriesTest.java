@@ -97,5 +97,4 @@ public class CountriesTest {
         Countries.removeCountry(US);
         assertEquals(Countries.countries.size() == 2, true);
     }
-
 }

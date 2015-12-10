@@ -1,5 +1,6 @@
 package com.example.kos.teamheliotrope.backend;
 
+//~ JDK/Android Imports ========================================
 
 import android.content.Intent;
 import com.example.kos.teamheliotrope.frontend.MainActivity;
