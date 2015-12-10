@@ -43,26 +43,15 @@ public class IndicatorButton {
         layout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                for (IndicatorButton indicatorButton : mainActivity.getIndicatorButtons()) {
-                    if (!indicatorButton.equals(IndicatorButton.this)) { // Don't include this layout
-                        indicatorButton.getLayout().setAlpha(0.5f); // Disable layout
-                        mainActivity.setupPieChart();
-                    }
+                if (!isEnabled()) {
+                    return true;
                 }
 
-                return true;
-            }
-        });
-    }
-
-    private void setOnLongClickListenerOld() {
-        layout.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
                 for (IndicatorButton indicatorButton : mainActivity.getIndicatorButtons()) {
                     if (!indicatorButton.equals(IndicatorButton.this)) { // Don't include this layout
                         indicatorButton.getLayout().setAlpha(0.5f); // Disable layout
-                        mainActivity.setupPieChart();
+                        mainActivity.updatePieChart();
+                        mainActivity.setupLineChart();
                     }
                 }
 

@@ -90,17 +90,11 @@ public class MainActivity extends AppCompatActivity {
     LineChartView lineChart;
     ArrayList<IndicatorButton> indicatorButtons = new ArrayList<>();
     Spinner spCountries,spYear,spIndicators;
-    TextView in,tvTotalEnergyConsumption,tvRenewableEnergyConsumption,tvFossilFuelEnergyConsumptionPanel,tvOtherEnergyConsumptionPanel;
-    LinearLayout topPanel, mainChartAndStatsLayout, secondaryChartLayout, indicatorPanel;
+    TextView in,overTime,tvTotalEnergyConsumption,tvRenewableEnergyConsumption,tvFossilFuelEnergyConsumptionPanel,tvOtherEnergyConsumptionPanel;
+    LinearLayout mainChartAndStatsLayout, secondaryChartLayout, indicatorPanel;
     ScrollView contentScrollView;
 
     public AlertDialog loadingDialog;
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d(TAG, "onResume triggered.");
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,13 +115,13 @@ public class MainActivity extends AppCompatActivity {
         spYear = (Spinner) findViewById(R.id.spYear);
 
         in = (TextView) findViewById(R.id.in);
+        overTime = (TextView) findViewById(R.id.overTime);
 
         tvTotalEnergyConsumption = (TextView) findViewById(R.id.tvTotalEnergyConsumption);
         tvRenewableEnergyConsumption = (TextView) findViewById(R.id.tvRenewableEnergyConsumption);
         tvFossilFuelEnergyConsumptionPanel = (TextView) findViewById(R.id.tvFossilFuelEnergyConsumptionPanel);
         tvOtherEnergyConsumptionPanel = (TextView) findViewById(R.id.tvOtherEnergyConsumptionPanel);
 
-        topPanel = (LinearLayout) findViewById(R.id.topPanel);
         mainChartAndStatsLayout = (LinearLayout) findViewById(R.id.mainChartAndStatsLayout);
         secondaryChartLayout = (LinearLayout) findViewById(R.id.secondaryChartLayout);
         indicatorPanel = (LinearLayout) findViewById(R.id.indicatorPanel);
@@ -284,6 +278,12 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onStart triggered.");
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume triggered.");
+    }
+
     /**
      * Sets height of the main content area (workaround for not being able to set this in XML)
      */
@@ -320,11 +320,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onScrollChanged() {
                 int posY = contentScrollView.getScrollY();
-                float percent = ((float)posY/contentScrollView.getHeight())*100;
-                float alpha = (100 - percent)/100;
+                float percent = ((float) posY / contentScrollView.getHeight()) * 100;
+                float alpha = (100 - percent) / 100;
 
                 spYear.setAlpha(alpha);
                 in.setAlpha(alpha);
+                overTime.setAlpha(1-alpha);
+
+                if (percent >= 90) {
+                    spYear.setEnabled(false);
+                } else {
+                    spYear.setEnabled(true);
+                }
 
                 for (IndicatorButton indicatorButton : indicatorButtons) {
                     indicatorButton.getTextView().setAlpha(alpha);
@@ -414,7 +421,7 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             v.setAlpha(1);
                         }
-                        setupPieChart();
+                        updatePieChart();
                         setupLineChart();
                     }
                 });
@@ -506,7 +513,7 @@ public class MainActivity extends AppCompatActivity {
                 if (firstLoad) {
                     firstLoad = false;
                 } else {
-                    setupPieChart();
+                    updatePieChart();
                     setupLineChart();
                     updateIndicatorButtons();
                 }
@@ -536,7 +543,7 @@ public class MainActivity extends AppCompatActivity {
                 if (firstLoad) {
                     firstLoad = false;
                 } else {
-                    setupPieChart();
+                    updatePieChart();
                     updateIndicatorButtons();
                 }
             }
@@ -680,21 +687,17 @@ public class MainActivity extends AppCompatActivity {
         // Define values for chart
         ArrayList<SliceValue> slices = new ArrayList<>();
         for (IndicatorButton indicatorButton : indicatorButtons) {
-
-            // Only get values for enabled indicators
-            if (!indicatorButton.isEnabled()) {
-                continue;
-            }
-
             Value value = country.getIndicator(indicatorButton.getIndicatorId()).getValue(date);
 
-            // Skip null values
+            // Set null value slices to 0 (but include in slices array as the updatePieChart() method is dependent on slices order)
+            SliceValue slice;
             if (value != null) {
-                slices.add(new SliceValue(
-                        value.getValue(),
-                        indicatorButton.getColor()
-                ));
+                slice = new SliceValue(value.getValue(), indicatorButton.getColor());
+            } else {
+                slice = new SliceValue(0, 0);
             }
+
+            slices.add(slice);
         }
 
         // Set chart data
@@ -704,7 +707,33 @@ public class MainActivity extends AppCompatActivity {
         chartData.setSlicesSpacing(0);
 
         pieChart.setPieChartData(chartData); // Also refreshes chart
-        pieChart.animate();
+    }
+
+    protected void updatePieChart() {
+        Country country = Countries.getCountry(spCountries.getSelectedItem().toString());
+        Log.d(TAG, "Country: " + country.getName());
+        String date = spYear.getSelectedItem().toString();
+        Log.d(TAG, "Date: "+ date);
+
+        PieChartData chartData = pieChart.getPieChartData();
+        List<SliceValue> slices = chartData.getValues();
+
+        IndicatorButton indicatorButton;
+        Value value;
+        for (int i=0; i<slices.size(); i++) {
+            indicatorButton = indicatorButtons.get(i);
+            SliceValue slice = slices.get(i);
+
+            value = country.getIndicator(indicatorButton.getIndicatorId()).getValue(date);
+
+            if (indicatorButton.isEnabled() && (value != null)) {
+                slice.setTarget(country.getIndicator(indicatorButton.getIndicatorId()).getValue(date).getValue());
+            } else {
+                slice.setTarget(0);
+            }
+        }
+
+        pieChart.startDataAnimation();
     }
 
     /**
@@ -742,7 +771,6 @@ public class MainActivity extends AppCompatActivity {
         chartData.setAxisYLeft(new Axis().setTextColor(grey));
 
         lineChart.setLineChartData(chartData); // Also refreshes chart
-        lineChart.animate();
     }
 
     /**
