@@ -7,6 +7,7 @@ import com.example.kos.teamheliotrope.backend.DataRetrieverThread;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -895,5 +896,23 @@ public class MainActivity extends AppCompatActivity {
         float scale = Resources.getSystem().getDisplayMetrics().density;
 
         return ((int) (dp*scale + 0.5f));
+    }
+
+    public void showHintDialog(View view){
+        AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);
+        dlgAlert.setMessage(
+                "- Select a country and a specific year from the dropdown boxes in the title\n\n" +
+                "- Click on an indicator to toggle select/deselect it\n\n" +
+                "- Long press on an indicator to deselect all other indicators\n\n" +
+                "- Scroll down on the pie chart to see a line chart of the selected indicator(s) energy consumption over time");
+        dlgAlert.setTitle("How to use");
+        dlgAlert.setPositiveButton("Ok",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        //dismiss the dialog
+                    }
+                });
+        dlgAlert.setCancelable(true);
+        dlgAlert.create().show();
     }
 }
