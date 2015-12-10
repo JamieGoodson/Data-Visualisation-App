@@ -87,8 +87,8 @@ public class MainActivity extends AppCompatActivity {
     LineChartView lineChart;
     ArrayList<IndicatorButton> indicatorButtons = new ArrayList<>();
     Spinner spCountries,spYear,spIndicators;
-    TextView in,tvTotalEnergyConsumption,tvRenewableEnergyConsumption,tvFossilFuelEnergyConsumptionPanel,tvOtherEnergyConsumptionPanel;
-    LinearLayout topPanel, mainChartAndStatsLayout, secondaryChartLayout, indicatorPanel;
+    TextView in,overTime,tvTotalEnergyConsumption,tvRenewableEnergyConsumption,tvFossilFuelEnergyConsumptionPanel,tvOtherEnergyConsumptionPanel;
+    LinearLayout mainChartAndStatsLayout, secondaryChartLayout, indicatorPanel;
     ScrollView contentScrollView;
 
     public AlertDialog loadingDialog;
@@ -112,13 +112,13 @@ public class MainActivity extends AppCompatActivity {
         spYear = (Spinner) findViewById(R.id.spYear);
 
         in = (TextView) findViewById(R.id.in);
+        overTime = (TextView) findViewById(R.id.overTime);
 
         tvTotalEnergyConsumption = (TextView) findViewById(R.id.tvTotalEnergyConsumption);
         tvRenewableEnergyConsumption = (TextView) findViewById(R.id.tvRenewableEnergyConsumption);
         tvFossilFuelEnergyConsumptionPanel = (TextView) findViewById(R.id.tvFossilFuelEnergyConsumptionPanel);
         tvOtherEnergyConsumptionPanel = (TextView) findViewById(R.id.tvOtherEnergyConsumptionPanel);
 
-        topPanel = (LinearLayout) findViewById(R.id.topPanel);
         mainChartAndStatsLayout = (LinearLayout) findViewById(R.id.mainChartAndStatsLayout);
         secondaryChartLayout = (LinearLayout) findViewById(R.id.secondaryChartLayout);
         indicatorPanel = (LinearLayout) findViewById(R.id.indicatorPanel);
@@ -317,6 +317,13 @@ public class MainActivity extends AppCompatActivity {
 
                 spYear.setAlpha(alpha);
                 in.setAlpha(alpha);
+                overTime.setAlpha(1-alpha);
+
+                if (percent >= 90) {
+                    spYear.setEnabled(false);
+                } else {
+                    spYear.setEnabled(true);
+                }
 
                 for (IndicatorButton indicatorButton : indicatorButtons) {
                     indicatorButton.getTextView().setAlpha(alpha);
