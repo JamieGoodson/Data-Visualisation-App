@@ -1,5 +1,7 @@
 package com.example.kos.teamheliotrope.backend;
 
+//~ JDK/Android Imports ========================================
+
 import com.example.kos.teamheliotrope.frontend.MainActivity;
 
 import org.json.JSONArray;
@@ -8,7 +10,9 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Created by firasAltayeb on 09/12/2015.
+ * Testing class.
+ * Tests for successful retrieval of the JSON Array from the World Data Bank and for processing of JSON information
+ * Tests whether Country objects are produced
  */
 public class CountryInfoThreadTest {
 
@@ -58,5 +62,4 @@ public class CountryInfoThreadTest {
         CIT.processJSONArray();
         assertEquals(Countries.countries.size() == 209, false);
     }
-
 }

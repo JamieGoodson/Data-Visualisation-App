@@ -1,5 +1,7 @@
 package com.example.kos.teamheliotrope.backend;
 
+//~ JDK/Android Imports ========================================
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -9,7 +11,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * Created by firasAltayeb on 07/12/2015.
+ * Testing class responsible for  testing Countries objects
  */
 public class CountriesTest {
 

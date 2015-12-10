@@ -1,5 +1,7 @@
 package com.example.kos.teamheliotrope.backend;
 
+//~ JDK/Android Imports ========================================
+
 import com.example.kos.teamheliotrope.frontend.MainActivity;
 
 import org.json.JSONArray;
@@ -9,7 +11,9 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Created by firasAltayeb on 09/12/2015.
+ * Testing class.
+ * Tests successful retrieval of the JSON Array from the World Data Bank and for processing the JSON information on a specific Country
+ * for a specific indicator code
  */
 public class DataRetrieverThreadTest {
 

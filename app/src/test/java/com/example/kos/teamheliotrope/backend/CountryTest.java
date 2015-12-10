@@ -1,12 +1,14 @@
 package com.example.kos.teamheliotrope.backend;
 
+//~ JDK/Android Imports ========================================
+
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 /**
- * Created by firasAltayeb on 08/12/2015.
+ * Testing class responsible for testing Country objects
  */
 public class CountryTest {
 

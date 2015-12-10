@@ -1,7 +1,8 @@
 package com.example.kos.teamheliotrope.backend;
 
+//~ JDK/Android Imports ========================================
+
 import android.content.Intent;
-import android.util.Log;
 
 import com.example.kos.teamheliotrope.frontend.MainActivity;
 
@@ -13,12 +14,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- * Created by tuffail on 03/12/15.
  * Retrieves JSON Array from the World Data Bank and processes the JSON information, producing Country objects
  */
 public class CountryInfoThread extends Thread {
@@ -116,6 +115,4 @@ public class CountryInfoThread extends Thread {
             e.printStackTrace();
         }
     }
-
-
 }

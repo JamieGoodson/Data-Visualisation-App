@@ -1,7 +1,8 @@
 package com.example.kos.teamheliotrope.backend;
 
+//~ JDK/Android Imports ========================================
+
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 
 /**
  * Class that maintains Value information for specific year

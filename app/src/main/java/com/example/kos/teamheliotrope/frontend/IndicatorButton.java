@@ -1,5 +1,7 @@
 package com.example.kos.teamheliotrope.frontend;
 
+//~ JDK/Android Imports ========================================
+
 import android.os.Handler;
 import android.view.View;
 import android.widget.LinearLayout;
