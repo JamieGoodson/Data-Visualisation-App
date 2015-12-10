@@ -14,6 +14,15 @@ public class IndicatorButton {
     int color;
     int clickCount = 0;
 
+    /**
+     * Construct an IndicatorButton
+     * @param activity Activity where the button will lie.
+     * @param layout Lyout that the button will use to act as an interactive button.
+     * @param valueTextView TextView object that is used to display the value for the associated indicator.
+     * @param indicatorId Indicator ID that is to be associated with this button.
+     * @param indicatorTitle Title of the indicator to be displayed.
+     * @param color Color to set the background of the button to.
+     */
     public IndicatorButton(MainActivity activity, LinearLayout layout, TextView valueTextView, String indicatorId, String indicatorTitle, int color) {
         this.mainActivity = activity;
         this.layout = layout;
@@ -96,22 +105,42 @@ public class IndicatorButton {
         });
     }
 
+    /**
+     * Get the layout that this object uses as a button.
+     * @return Layout.
+     */
     public LinearLayout getLayout() {
         return layout;
     }
 
+    /**
+     * Get the text view that is used to display the value of the associated indicator.
+     * @return Text view object.
+     */
     public TextView getTextView() {
         return valueTextView;
     }
 
+    /**
+     * Get the indicator ID associated with this object.
+     * @return Indicator ID
+     */
     public String getIndicatorId() {
         return indicatorId;
     }
 
+    /**
+     * Get the color of this object's layout.
+     * @return Color.
+     */
     public int getColor() {
         return color;
     }
 
+    /**
+     * Check if this button is enabled (by checking alpha value)
+     * @return True if enabled, false if not.
+     */
     public boolean isEnabled() {
         return (layout.getAlpha() == 1);
     }

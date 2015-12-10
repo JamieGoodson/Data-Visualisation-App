@@ -56,6 +56,9 @@ import lecho.lib.hellocharts.model.SliceValue;
 import lecho.lib.hellocharts.view.LineChartView;
 import lecho.lib.hellocharts.view.PieChartView;
 
+/**
+ * The main activity. Responsible for visualisation of the app.
+ */
 public class MainActivity extends AppCompatActivity {
     public static final String COUNTRYKEY = "COUNTRIES_DATA";
     public static final String TAG = "MAIN_ACTIVITY";
@@ -307,6 +310,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Setup the scroll view.
+     * Adds a listener to scroll views that triggers whenever the user scrolls - gradually fades in/out
+     * information that is relevant to the pie/line chart.
+     */
     private void setupScrollView() {
         contentScrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
             @Override
@@ -326,7 +334,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-    
+
+    /**
+     * Programatically creates indicator buttons and adds them to the indicator panel.
+     */
     private void setupIndicatorPanel() {
         String[] indicatorTitles = {
                 "Fossil\nFuels",
@@ -383,6 +394,8 @@ public class MainActivity extends AppCompatActivity {
 
         LinearLayout.LayoutParams params;
         int dp;
+
+        // Create a row (as LinearLayout) that contains two indicator buttons
         for (int i=0; i<10; i+=2) {
             LinearLayout row = new LinearLayout(this);
             row.setOrientation(LinearLayout.HORIZONTAL);
@@ -466,6 +479,10 @@ public class MainActivity extends AppCompatActivity {
         indicatorPanel.addView(valueDec);
     }
 
+    /**
+     * Populate the country spinner with a selection of countries (from the Countries class).
+     * Populate the year spinner with a range of years.
+     */
     private void initSpinners(){
         List<String> spinnerArrayCountry =  new ArrayList<String>();
 
@@ -530,6 +547,12 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Update stats in the left panel.
+     * Should be called whenever the user selects a new country/year.
+     * @param selectedCountry The selected country
+     * @param year The selected year
+     */
     private void updateData(Country selectedCountry, int year){
         float totalValue = getValueOfIndicatorCountry(selectedCountry, "1.1_TOTAL.FINAL.ENERGY.CONSUM",year);
         if (totalValue != -1) {
@@ -564,6 +587,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Populate the given spinner with the given list of strings
+     * @param spinner
+     * @param spinnerArray
+     */
     private void addDataToSpinner(Spinner spinner, List<String> spinnerArray) {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.title_spinner_item, spinnerArray);
 
@@ -571,6 +599,12 @@ public class MainActivity extends AppCompatActivity {
         spinner.setAdapter(adapter);
     }
 
+    /**
+     * Get index of given String value in spinner adapter
+     * @param spinner The spinner to search
+     * @param value The value to get the index for
+     * @return
+     */
     private int getSpinnerIndexOf(Spinner spinner, String value) {
         SpinnerAdapter adapter = spinner.getAdapter();
 
@@ -583,21 +617,13 @@ public class MainActivity extends AppCompatActivity {
         return -1;
     }
 
-    private void updateIndicatorSpinner(Country selectedCountry){
-        List<String> spinnerArray = new ArrayList<String>();
-
-        ArrayList<Indicator> countryIndicators = selectedCountry.getIndicators();
-
-        for (int i = 0; i < countryIndicators.size(); ++i) {
-            spinnerArray.add(countryIndicators.get(i).getTitle());
-        }
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, spinnerArray);
-
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spIndicators.setAdapter(adapter);
-    }
-
+    /**
+     * Get the value of the given indicator, for a given year, for the given country
+     * @param selectedCountry The country to get the indicator for
+     * @param indicatorID The indicator to get the value for
+     * @param year The year to get the value for
+     * @return
+     */
     private float getValueOfIndicatorCountry(Country selectedCountry,String indicatorID, int year){
         Indicator indicator = selectedCountry.getIndicator(indicatorID);
         if (indicator != null){
@@ -609,6 +635,9 @@ public class MainActivity extends AppCompatActivity {
         return -1;
     }
 
+    /**
+     * Calls a method which retrieves a list of Country objects from the World Bank
+     */
     private void initCountries(){
         CountryInfoThread countryInfoThread = new CountryInfoThread(this,countryQuery);
         countryInfoThread.start();
@@ -619,6 +648,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Update the indicator buttons with values for the current selected country and date
+     */
     protected void updateIndicatorButtons() {
         Country country = Countries.getCountry(spCountries.getSelectedItem().toString());
         String date = spYear.getSelectedItem().toString();
@@ -635,6 +667,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Do first-time setup of the pie chart.
+     * Gets data from the selected country and year and adds it to the pie chart.
+     */
     protected void setupPieChart() {
         Country country = Countries.getCountry(spCountries.getSelectedItem().toString());
         Log.d(TAG, "Country: " + country.getName());
@@ -671,6 +707,9 @@ public class MainActivity extends AppCompatActivity {
         pieChart.animate();
     }
 
+    /**
+     * (Re)Generate the line chart with values for all years for the currently selected indicators
+     */
     protected void setupLineChart() {
         Country country = Countries.getCountry(spCountries.getSelectedItem().toString());
 
@@ -706,6 +745,9 @@ public class MainActivity extends AppCompatActivity {
         lineChart.animate();
     }
 
+    /**
+     * Retrieve all data from the World Bank and create a cache file with this data.
+     */
     private void initData(){
 
         // Create a pool of threads - limits number of threads to avoid JVM crashes
@@ -759,6 +801,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Display all data (in the logcat) for all countries
+     * Only use when debugging as takes some time to print all data.
+     */
     public void displayData() {
         for (Country country : Countries.getCountries()) {
             Log.d(TAG, String.format("====== %s ======", country.getName()));
@@ -774,6 +820,10 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "END OF DATA");
     }
 
+    /**
+     * For debugging.
+     * Displays the null counts (no data found) for all countries.
+     */
     public void displayCountriesNullCounts() {
         Log.d(TAG, "====== Country null value counts ======");
         Log.d(TAG, "Total countries: " + Countries.getCountries().size());
@@ -782,10 +832,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * @return An ArrayList of all Indicator Button objects
+     */
     public ArrayList<IndicatorButton> getIndicatorButtons() {
         return indicatorButtons;
     }
 
+    /**
+     * Hide the system UI
+     */
     public void hideSystemUi() {
         findViewById(android.R.id.content).setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -796,6 +852,11 @@ public class MainActivity extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_IMMERSIVE);
     }
 
+    /**
+     * Convert the given DP value to a pixel value.
+     * @param dp The DP value to convert.
+     * @return The converted value in pixels.
+     */
     public static int dpToPx(int dp) {
         float scale = Resources.getSystem().getDisplayMetrics().density;
 
