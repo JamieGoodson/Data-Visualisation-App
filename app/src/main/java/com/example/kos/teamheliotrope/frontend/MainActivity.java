@@ -646,13 +646,15 @@ public class MainActivity extends AppCompatActivity {
         for (IndicatorButton indicatorButton : indicatorButtons) {
             Value value = country.getIndicator(indicatorButton.getIndicatorId()).getValue(date);
 
-            // Skip null values
+            // Set null value slices to 0 (but include in slices array as the updatePieChart() method is dependent on slices order)
+            SliceValue slice;
             if (value != null) {
-                slices.add(new SliceValue(
-                        value.getValue(),
-                        indicatorButton.getColor()
-                ));
+                slice = new SliceValue(value.getValue(), indicatorButton.getColor());
+            } else {
+                slice = new SliceValue(0, 0);
             }
+
+            slices.add(slice);
         }
 
         // Set chart data
@@ -671,7 +673,6 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "Date: "+ date);
 
         PieChartData chartData = pieChart.getPieChartData();
-
         List<SliceValue> slices = chartData.getValues();
 
         IndicatorButton indicatorButton;
