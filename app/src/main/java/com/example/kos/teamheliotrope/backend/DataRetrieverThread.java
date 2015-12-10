@@ -1,22 +1,15 @@
 package com.example.kos.teamheliotrope.backend;
 
-import android.content.Context;
+
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-
 import com.example.kos.teamheliotrope.frontend.MainActivity;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -46,7 +39,6 @@ public class DataRetrieverThread extends Thread {
         this.country = country;
         this.indicatorCode = indicatorCode;
         this.countryCode = countryCode;
-
         // IMPORTANT! Make sure the per page part of the JSONQuery is set to 13888 as that's the maximum number of results we could receive in a page
         this.query = "http://api.worldbank.org/countries/" + this.countryCode + "/indicators/" + this.indicatorCode + "?per_page=13888&date=1960:2015&format=json";
     }
@@ -56,7 +48,6 @@ public class DataRetrieverThread extends Thread {
      */
     @Override
     public void run() {
-        Log.d(TAG, String.format("Starting thread for %s, %s (%s)...", countryCode, indicatorCode, query));
 
         activity.runOnUiThread(new Runnable() {
             @Override
@@ -69,9 +60,12 @@ public class DataRetrieverThread extends Thread {
         processJSONArray();
     }
 
-    // TODO: Handle what happens when device isn't connected to internet. Currently causes app to crash.
-    private JSONArray fetchJSONArray() {
-
+    /**
+     * This method initializes the JSONArray with the all JSON objects
+     * retrived from the query
+     * @return
+     */
+    public JSONArray fetchJSONArray() {
         try{
             // open connection
             URL url = new URL(query);
@@ -112,6 +106,14 @@ public class DataRetrieverThread extends Thread {
         return null;
     }
 
+    /**
+     * this method checks whether the declared country has an indicator and if it does not it creates one
+     * for it and then the method creates an object for every object that is in the dataArray and if the
+     * created object has a value and a data which is between dataMin and dataMax the current object's
+     * value will be stored in the indicator as a Value in the values arrayList otherwise the nullValueCount
+     * will increase. if the current country has more then 5 nullCounts for every null value it receive from
+     * JSON objects the country will be removed from the countries arrayList.
+     */
     public void processJSONArray() {
         try {
             JSONArray dataArray = jsonArray.getJSONArray(1);
@@ -135,12 +137,10 @@ public class DataRetrieverThread extends Thread {
             // Begin adding values
             for (int i = 0; i < dataArray.length(); i++) {
                 dataForThisYear = dataArray.getJSONObject(i);
-                //Log.d(TAG, dataForThisYear.toString());
-
                 date = dataForThisYear.getString("date");
                 value = dataForThisYear.getString("value");
 
-                if (((date.length() == 4) && (Integer.parseInt(date) >= MainActivity.dateMin) && (Integer.parseInt(date) <= MainActivity.dateMax))) { // Skip pre-1990/post-20012 values (to reduces holes in data)
+                if (((date.length() == 4) && (Integer.parseInt(date) >= MainActivity.dateMin) && (Integer.parseInt(date) <= MainActivity.dateMax))) { // Skip pre-1990/post-2012 values (to reduces holes in data)
                     if (!value.equals("null")) {
                         indicator.addValue(new Value(date, Float.parseFloat(value)));
                     } else {

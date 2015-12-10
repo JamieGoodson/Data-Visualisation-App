@@ -45,30 +45,12 @@ public class CountryInfoThread extends Thread {
         processJSONArray();
     }
 
-    private void processJSONArray() {
-        try {
-            JSONArray dataArray = jsonArray.getJSONArray(1);
-            JSONObject countryData;
-
-            for (int i = 0; i < dataArray.length(); i++){
-                countryData = dataArray.getJSONObject(i);
-                String countryLongitude = countryData.getString("longitude");
-                String countryLatitude = countryData.getString("latitude");
-
-                if (countryLatitude.length() != 0 && countryLongitude.length() != 0){
-                    Country country = new Country();
-                    country.setId(countryData.getString("iso2Code"));
-                    country.setName(countryData.getString("name"));
-                    Countries.addCountry(country);
-                }
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    // TODO: Handle what happens when device isn't connected to internet. Currently causes app to crash.
-    private JSONArray fetchJSONArray() {
+    /**
+     * This method initializes the JSONArray with the all JSON objects
+     * retrived from the query
+     * @return
+     */
+    public JSONArray fetchJSONArray() {
 
         try{
             // open connection
@@ -108,5 +90,32 @@ public class CountryInfoThread extends Thread {
         activity.startActivity(i);
         return null;
     }
+
+    /**
+     * this method creates and initializes countries for each object that contains a longitude
+     * and a latitude and then adds the created country to a country arrayList
+     */
+    public void processJSONArray() {
+        try {
+            JSONArray dataArray = jsonArray.getJSONArray(1);
+            JSONObject countryData;
+
+            for (int i = 0; i < dataArray.length(); i++){
+                countryData = dataArray.getJSONObject(i);
+                String countryLongitude = countryData.getString("longitude");
+                String countryLatitude = countryData.getString("latitude");
+
+                if (countryLatitude.length() != 0 && countryLongitude.length() != 0){
+                    Country country = new Country();
+                    country.setId(countryData.getString("iso2Code"));
+                    country.setName(countryData.getString("name"));
+                    Countries.addCountry(country);
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
 
 }

@@ -101,4 +101,13 @@ public class CountryTest {
     public void testGetId() throws Exception {
         assertEquals(test.getId().equals("testId"), true);
     }
+
+    /**
+     * this methods checks whether getNullValueCount() works by checking whether the returned
+     * value is equal to the assigned value
+     */
+    @Test
+    public void testGetNullValueCount() throws Exception {
+        assertEquals(test.getNullValueCount() == 0, true);
+    }
 }
