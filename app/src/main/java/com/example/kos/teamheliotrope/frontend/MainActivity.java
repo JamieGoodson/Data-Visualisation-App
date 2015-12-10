@@ -94,12 +94,6 @@ public class MainActivity extends AppCompatActivity {
     public AlertDialog loadingDialog;
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d(TAG, "onResume triggered.");
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
@@ -281,6 +275,12 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onStart triggered.");
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume triggered.");
+    }
+
     /**
      * Sets height of the main content area (workaround for not being able to set this in XML)
      */
@@ -312,8 +312,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onScrollChanged() {
                 int posY = contentScrollView.getScrollY();
-                float percent = ((float)posY/contentScrollView.getHeight())*100;
-                float alpha = (100 - percent)/100;
+                float percent = ((float) posY / contentScrollView.getHeight()) * 100;
+                float alpha = (100 - percent) / 100;
 
                 spYear.setAlpha(alpha);
                 in.setAlpha(alpha);
@@ -401,7 +401,7 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             v.setAlpha(1);
                         }
-                        setupPieChart();
+                        updatePieChart();
                         setupLineChart();
                     }
                 });
@@ -489,7 +489,7 @@ public class MainActivity extends AppCompatActivity {
                 if (firstLoad) {
                     firstLoad = false;
                 } else {
-                    setupPieChart();
+                    updatePieChart();
                     setupLineChart();
                     updateIndicatorButtons();
                 }
@@ -519,7 +519,7 @@ public class MainActivity extends AppCompatActivity {
                 if (firstLoad) {
                     firstLoad = false;
                 } else {
-                    setupPieChart();
+                    updatePieChart();
                     updateIndicatorButtons();
                 }
             }
@@ -644,12 +644,6 @@ public class MainActivity extends AppCompatActivity {
         // Define values for chart
         ArrayList<SliceValue> slices = new ArrayList<>();
         for (IndicatorButton indicatorButton : indicatorButtons) {
-
-            // Only get values for enabled indicators
-            if (!indicatorButton.isEnabled()) {
-                continue;
-            }
-
             Value value = country.getIndicator(indicatorButton.getIndicatorId()).getValue(date);
 
             // Skip null values
@@ -668,7 +662,34 @@ public class MainActivity extends AppCompatActivity {
         chartData.setSlicesSpacing(0);
 
         pieChart.setPieChartData(chartData); // Also refreshes chart
-        pieChart.animate();
+    }
+
+    protected void updatePieChart() {
+        Country country = Countries.getCountry(spCountries.getSelectedItem().toString());
+        Log.d(TAG, "Country: " + country.getName());
+        String date = spYear.getSelectedItem().toString();
+        Log.d(TAG, "Date: "+ date);
+
+        PieChartData chartData = pieChart.getPieChartData();
+
+        List<SliceValue> slices = chartData.getValues();
+
+        IndicatorButton indicatorButton;
+        Value value;
+        for (int i=0; i<slices.size(); i++) {
+            indicatorButton = indicatorButtons.get(i);
+            SliceValue slice = slices.get(i);
+
+            value = country.getIndicator(indicatorButton.getIndicatorId()).getValue(date);
+
+            if (indicatorButton.isEnabled() && (value != null)) {
+                slice.setTarget(country.getIndicator(indicatorButton.getIndicatorId()).getValue(date).getValue());
+            } else {
+                slice.setTarget(0);
+            }
+        }
+
+        pieChart.startDataAnimation();
     }
 
     protected void setupLineChart() {
@@ -703,7 +724,6 @@ public class MainActivity extends AppCompatActivity {
         chartData.setAxisYLeft(new Axis().setTextColor(grey));
 
         lineChart.setLineChartData(chartData); // Also refreshes chart
-        lineChart.animate();
     }
 
     private void initData(){
