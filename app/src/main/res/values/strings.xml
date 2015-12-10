@@ -38,4 +38,8 @@
     <string name="percentage">%</string>
     <string name="how_to_use">How to use</string>
     <string name="ok">Ok</string>
+    <string name="dialog_box_year_and_country">Select a country and a specific year from the dropdown boxes in the title</string>
+    <string name="dialog_box_toggle_indicator">Click on an indicator to toggle select/deselect it</string>
+    <string name="dialog_box_long_press_indicator">Long press on an indicator to deselect all other indicators</string>
+    <string name="dialog_box_line_graph">Scroll down on the pie chart to see a line chart of the selected indicator(s) energy consumption over time</string>
 </resources>
