@@ -2,17 +2,20 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageButton
+    <TextView
         android:id="@+id/hintButton"
         android:layout_width="20dp"
-        android:layout_height="25dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="10dp"
-        android:background="@drawable/question_mark"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="5dp"
         android:onClick="showHintDialog"
-        android:alpha="0.8" />
+        android:text="\?"
+        android:alpha="0.8"
+        android:textSize="24sp"
+        android:gravity="center"
+        android:textStyle="bold"/>
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
