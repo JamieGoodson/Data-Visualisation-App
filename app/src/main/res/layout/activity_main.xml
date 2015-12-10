@@ -1,5 +1,21 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageButton
+        android:id="@+id/hintButton"
+        android:layout_width="20dp"
+        android:layout_height="25dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:background="@drawable/question_mark"
+        android:onClick="showHintDialog"
+        android:alpha="0.8" />
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
@@ -30,7 +46,8 @@
             android:layout_height="wrap_content"
             android:layout_toRightOf="@+id/tvDistributionOfEnergy"
             android:layout_gravity="center"
-            android:layout_centerVertical="true" />
+            android:layout_centerVertical="true"
+            android:spinnerMode="dialog" />
 
         <TextView
             android:id="@+id/in"
@@ -48,7 +65,8 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@+id/in"
-            android:layout_centerVertical="true" />
+            android:layout_centerVertical="true"
+            android:spinnerMode="dialog" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -227,4 +245,5 @@
 
     </LinearLayout>
 
+</RelativeLayout>
 </RelativeLayout>
