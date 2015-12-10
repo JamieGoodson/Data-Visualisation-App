@@ -709,6 +709,12 @@ public class MainActivity extends AppCompatActivity {
         pieChart.setPieChartData(chartData); // Also refreshes chart
     }
 
+    /**
+     * Update the pie chart with new values for the selected indicators/country/year.
+     * Also animates the chart to show change in values.
+     * For any disabled indicators, their values in the chart are set to 0 (rather than removing them)
+     * so the chart understands how to animate with the new dataset.
+     */
     protected void updatePieChart() {
         Country country = Countries.getCountry(spCountries.getSelectedItem().toString());
         Log.d(TAG, "Country: " + country.getName());
