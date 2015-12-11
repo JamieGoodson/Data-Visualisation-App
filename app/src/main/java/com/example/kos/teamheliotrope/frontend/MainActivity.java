@@ -326,7 +326,7 @@ public class MainActivity extends AppCompatActivity {
 
                 spYear.setAlpha(alpha);
                 in.setAlpha(alpha);
-                overTime.setAlpha(1-alpha);
+                overTime.setAlpha(1 - alpha);
 
                 if (percent >= 90) {
                     spYear.setEnabled(false);
@@ -667,6 +667,30 @@ public class MainActivity extends AppCompatActivity {
             TextView valueTextView = indicatorButton.getTextView();
             Value value = country.getIndicator(indicatorButton.getIndicatorId()).getValue(date);
 
+            if(indicatorButton.getIndicatorId().equals("2.1.4_SHARE.BIOFUELS")){
+                Log.d("TEST",country.getName() + ", " + date);
+                float tempValue = 0;
+
+                if (value != null){
+                    Log.d("TEST","AV" + value.getValue());
+                    tempValue += value.getValue();
+                }
+                Value tradBio = country.getIndicator("2.1.1_SHARE.TRADBIO").getValue(date);
+                if (tradBio != null){
+                    Log.d("TEST","TB" + tradBio.getValue());
+                    tempValue += tradBio.getValue();
+                }
+                Value modernBio = country.getIndicator("2.1.2_SHARE.MODERNBIO").getValue(date);
+                if(modernBio != null){
+                    Log.d("TEST","MB" + modernBio.getValue());
+                    tempValue += modernBio.getValue();
+                }
+                if (tempValue != 0){
+                    Log.d("TEST","NV" + tempValue);
+                    value = new Value(date,tempValue);
+                }
+            }
+
             if (value != null) {
                 valueTextView.setText(String.format("%.2f%%", value.getValue()));
             } else {
@@ -689,6 +713,30 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<SliceValue> slices = new ArrayList<>();
         for (IndicatorButton indicatorButton : indicatorButtons) {
             Value value = country.getIndicator(indicatorButton.getIndicatorId()).getValue(date);
+
+            if(indicatorButton.getIndicatorId().equals("2.1.4_SHARE.BIOFUELS")){
+                Log.d("TEST",country.getName() + ", " + date);
+                float tempValue = 0;
+
+                if (value != null){
+                    Log.d("TEST","AV" + value.getValue());
+                    tempValue += value.getValue();
+                }
+                Value tradBio = country.getIndicator("2.1.1_SHARE.TRADBIO").getValue(date);
+                if (tradBio != null){
+                    Log.d("TEST","TB" + tradBio.getValue());
+                    tempValue += tradBio.getValue();
+                }
+                Value modernBio = country.getIndicator("2.1.2_SHARE.MODERNBIO").getValue(date);
+                if(modernBio != null){
+                    Log.d("TEST","MB" + modernBio.getValue());
+                    tempValue += modernBio.getValue();
+                }
+                if (tempValue != 0){
+                    Log.d("TEST","NV" + tempValue);
+                    value = new Value(date,tempValue);
+                }
+            }
 
             // Set null value slices to 0 (but include in slices array as the updatePieChart() method is dependent on slices order)
             SliceValue slice;
@@ -733,8 +781,33 @@ public class MainActivity extends AppCompatActivity {
 
             value = country.getIndicator(indicatorButton.getIndicatorId()).getValue(date);
 
+            if(indicatorButton.getIndicatorId().equals("2.1.4_SHARE.BIOFUELS")){
+                Log.d("TEST",country.getName() + ", " + date);
+                float tempValue = 0;
+
+                if (value != null){
+                    Log.d("TEST","AV" + value.getValue());
+                    tempValue += value.getValue();
+                }
+                Value tradBio = country.getIndicator("2.1.1_SHARE.TRADBIO").getValue(date);
+                if (tradBio != null){
+                    Log.d("TEST","TB" + tradBio.getValue());
+                    tempValue += tradBio.getValue();
+                }
+                Value modernBio = country.getIndicator("2.1.2_SHARE.MODERNBIO").getValue(date);
+                if(modernBio != null){
+                    Log.d("TEST","MB" + modernBio.getValue());
+                    tempValue += modernBio.getValue();
+                }
+                if (tempValue != 0){
+                    Log.d("TEST","NV" + tempValue);
+                    value = new Value(date,tempValue);
+                }
+            }
+
             if (indicatorButton.isEnabled() && (value != null)) {
-                slice.setTarget(country.getIndicator(indicatorButton.getIndicatorId()).getValue(date).getValue());
+                Log.d("TEST","SETV" + value.getValue());
+                slice.setTarget(value.getValue());
             } else {
                 slice.setTarget(0);
             }
@@ -762,6 +835,30 @@ public class MainActivity extends AppCompatActivity {
             pointValues = new ArrayList<>();
             for (int i=dateMin; i<dateMax; i++) {
                 Value value = country.getIndicator(indicatorButton.getIndicatorId()).getValue(String.valueOf(i));
+
+                if(indicatorButton.getIndicatorId().equals("2.1.4_SHARE.BIOFUELS")){
+                    Log.d("TEST",country.getName() + ", " + String.valueOf(i));
+                    float tempValue = 0;
+
+                    if (value != null){
+                        Log.d("TEST","AV" + value.getValue());
+                        tempValue += value.getValue();
+                    }
+                    Value tradBio = country.getIndicator("2.1.1_SHARE.TRADBIO").getValue(String.valueOf(i));
+                    if (tradBio != null){
+                        Log.d("TEST","TB" + tradBio.getValue());
+                        tempValue += tradBio.getValue();
+                    }
+                    Value modernBio = country.getIndicator("2.1.2_SHARE.MODERNBIO").getValue(String.valueOf(i));
+                    if(modernBio != null){
+                        Log.d("TEST","MB" + modernBio.getValue());
+                        tempValue += modernBio.getValue();
+                    }
+                    if (tempValue != 0){
+                        Log.d("TEST","NV" + tempValue);
+                        value = new Value(String.valueOf(i),tempValue);
+                    }
+                }
 
                 if (value != null) {
                     pointValues.add(new PointValue(i, value.getValue()));
