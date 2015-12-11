@@ -564,7 +564,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateData(Country selectedCountry, int year){
         float totalValue = getValueOfIndicatorCountry(selectedCountry, "1.1_TOTAL.FINAL.ENERGY.CONSUM",year);
         if (totalValue != -1) {
-            tvTotalEnergyConsumption.setText(String.format("%d", Math.round(totalValue)) + getString(R.string.tera_joules));
+            tvTotalEnergyConsumption.setText(String.format("%d", Math.round(totalValue)) + " " + getString(R.string.tera_joules));
         } else {
             tvTotalEnergyConsumption.setText(getString(R.string.not_applicable));
         }
