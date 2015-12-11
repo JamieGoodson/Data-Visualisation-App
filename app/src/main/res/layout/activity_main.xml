@@ -99,7 +99,7 @@
             android:id="@+id/contentScrollView"
             android:layout_weight="0.7"
             android:fillViewport="true"
-            android:scollbars="none">
+            android:scrollbars="none">
 
             <LinearLayout
                 android:orientation="vertical"
