@@ -98,7 +98,8 @@
             android:layout_height="match_parent"
             android:id="@+id/contentScrollView"
             android:layout_weight="0.7"
-            android:fillViewport="true">
+            android:fillViewport="true"
+            android:scollbars="none">
 
             <LinearLayout
                 android:orientation="vertical"
