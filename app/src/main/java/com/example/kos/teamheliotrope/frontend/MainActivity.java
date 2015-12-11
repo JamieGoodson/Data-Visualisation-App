@@ -91,7 +91,8 @@ public class MainActivity extends AppCompatActivity {
     LineChartView lineChart;
     ArrayList<IndicatorButton> indicatorButtons = new ArrayList<>();
     Spinner spCountries,spYear,spIndicators;
-    TextView in,overTime,tvTotalEnergyConsumption,tvRenewableEnergyConsumption,tvFossilFuelEnergyConsumptionPanel,tvOtherEnergyConsumptionPanel;
+    TextView in,overTime,tvTotalEnergyConsumption,tvRenewableEnergyConsumption,tvFossilFuelEnergyConsumptionPanel,
+            tvOtherEnergyConsumptionPanel, hintButton;
     LinearLayout mainChartAndStatsLayout, secondaryChartLayout, indicatorPanel;
     ScrollView contentScrollView;
 
@@ -122,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
         tvRenewableEnergyConsumption = (TextView) findViewById(R.id.tvRenewableEnergyConsumption);
         tvFossilFuelEnergyConsumptionPanel = (TextView) findViewById(R.id.tvFossilFuelEnergyConsumptionPanel);
         tvOtherEnergyConsumptionPanel = (TextView) findViewById(R.id.tvOtherEnergyConsumptionPanel);
+        hintButton = (TextView) findViewById(R.id.hintButton);
 
         mainChartAndStatsLayout = (LinearLayout) findViewById(R.id.mainChartAndStatsLayout);
         secondaryChartLayout = (LinearLayout) findViewById(R.id.secondaryChartLayout);
@@ -224,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "No cache file found. Performing first time setup.");
                     initCountries();
                     initData();
-                    displayCountriesNullCounts(); // Debug
+                    //displayCountriesNullCounts(); // Debug
                 } else { // No internet connection or cache file
                     Log.d(TAG, "No cache file found, and no internet connection!");
                     runOnUiThread(new Runnable() {

@@ -62,6 +62,21 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
     }
 
     /**
+     * this test method checks whether hideSystemUi is capable of hiding the
+     * all the views in the mainActivity
+     */
+    public void testHideSystemUi(){
+        mainActivity = getActivity();
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+
+                assertFalse(mainActivity.findViewById(android.R.id.content).isShown());
+            }
+        });
+    }
+
+    /**
      * this test method checks whether dpToPx() is capable of taking an int and returning
      *  the value of the int * the resource scale + 0.5
      */
@@ -71,6 +86,20 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
             @Override
             public void run() {
                 assertNotNull(mainActivity.dpToPx(10));
+            }
+        });
+    }
+
+    /**
+     * this test method checks whether showHintDialog method is capable of assigning text
+     * to the textView
+     */
+    public void testShowHintDialog(){
+        mainActivity = getActivity();
+        getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                assertNotNull(mainActivity.hintButton.getText());
             }
         });
     }
