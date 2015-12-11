@@ -613,7 +613,7 @@ public class MainActivity extends AppCompatActivity {
      * @param value The value to get the index for
      * @return
      */
-    private int getSpinnerIndexOf(Spinner spinner, String value) {
+    public int getSpinnerIndexOf(Spinner spinner, String value) {
         SpinnerAdapter adapter = spinner.getAdapter();
 
         for (int i=0; i<adapter.getCount(); i++) {
@@ -632,7 +632,7 @@ public class MainActivity extends AppCompatActivity {
      * @param year The year to get the value for
      * @return
      */
-    private float getValueOfIndicatorCountry(Country selectedCountry,String indicatorID, int year){
+    public float getValueOfIndicatorCountry(Country selectedCountry,String indicatorID, int year){
         Indicator indicator = selectedCountry.getIndicator(indicatorID);
         if (indicator != null){
             Value value = indicator.getValue(String.valueOf(year));
