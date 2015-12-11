@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        loadingDialog = new AlertDialog.Builder(this).setTitle("Please wait...").setMessage("Initialising...").setCancelable(false).show();
+        loadingDialog = new AlertDialog.Builder(this).setTitle(getString(R.string.please_wait)).setMessage(getString(R.string.initialising)).setCancelable(false).show();
 
         // Setup app
         final Handler toastHandler = new Handler();
@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            loadingDialog.setMessage("Reading from cache...");
+                            loadingDialog.setMessage(getString(R.string.reading_from_cache));
                         }
                     });
 
@@ -230,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            loadingDialog.setMessage("No internet connection. Cannot perform first time setup. Please connect to the internet and then restart the app.");
+                            loadingDialog.setMessage(getString(R.string.no_internet_connection));
                         }
                     });
 
@@ -246,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        loadingDialog.setMessage("Initialising user interface...");
+                        loadingDialog.setMessage(getString(R.string.initialising_user_interface));
 
                         initSpinners();
                         setupPieChart();
@@ -263,7 +263,7 @@ public class MainActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Toast toast = Toast.makeText(MainActivity.this, "↓ Scroll down for more ↓", Toast.LENGTH_LONG);
+                                Toast toast = Toast.makeText(MainActivity.this, getString(R.string.scroll_down_for_more), Toast.LENGTH_LONG);
                                 toast.show();
                             }
                         });
@@ -348,16 +348,16 @@ public class MainActivity extends AppCompatActivity {
      */
     private void setupIndicatorPanel() {
         String[] indicatorTitles = {
-                "Fossil\nFuels",
-                "Nuclear",
-                "Marine",
-                "Biofuel",
-                "Hydro",
-                "Wind",
-                "Solar",
-                "Geo-\nthermal",
-                "Waste",
-                "Biogas"
+                getString(R.string.fossil_fuels),
+                getString(R.string.nuclear),
+                getString(R.string.marine),
+                getString(R.string.biofuel),
+                getString(R.string.hydro),
+                getString(R.string.wind),
+                getString(R.string.solar),
+                getString(R.string.geothermal),
+                getString(R.string.waste),
+                getString(R.string.biogas)
         };
 
         String[] indicators = {
@@ -456,7 +456,7 @@ public class MainActivity extends AppCompatActivity {
                 value.setTextColor(Color.WHITE);
                 value.setGravity(Gravity.LEFT);
                 value.setTextSize(15);
-                value.setText("0%");
+                value.setText(getString(R.string.zero_percent));
                 TextView title = new TextView(this);
                 title.setTextColor(Color.WHITE);
                 //title.setBackgroundColor(Color.RED); // test
@@ -499,7 +499,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         addDataToSpinner(spCountries, spinnerArrayCountry);
-        spCountries.setSelection(getSpinnerIndexOf(spCountries, "United Kingdom")); // Set default selection
+        spCountries.setSelection(getSpinnerIndexOf(spCountries, getString(R.string.united_kingdom))); // Set default selection
 
         spCountries.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             boolean firstLoad = true;
@@ -564,21 +564,21 @@ public class MainActivity extends AppCompatActivity {
     private void updateData(Country selectedCountry, int year){
         float totalValue = getValueOfIndicatorCountry(selectedCountry, "1.1_TOTAL.FINAL.ENERGY.CONSUM",year);
         if (totalValue != -1) {
-            tvTotalEnergyConsumption.setText(String.format("%d", Math.round(totalValue)) + " TJ");
+            tvTotalEnergyConsumption.setText(String.format("%d", Math.round(totalValue)) + " " + getString(R.string.tera_joules));
         } else {
-            tvTotalEnergyConsumption.setText("N/A");
+            tvTotalEnergyConsumption.setText(getString(R.string.not_applicable));
         }
         float renewableValue = getValueOfIndicatorCountry(selectedCountry,"EG.FEC.RNEW.ZS",year);
         if (renewableValue != -1) {
-            tvRenewableEnergyConsumption.setText(String.format("%.2f", renewableValue) + "%");
+            tvRenewableEnergyConsumption.setText(String.format("%.2f", renewableValue) + getString(R.string.percentage));
         } else {
-            tvRenewableEnergyConsumption.setText("N/A");
+            tvRenewableEnergyConsumption.setText(getString(R.string.not_applicable));
         }
         float fossilValue = getValueOfIndicatorCountry(selectedCountry,"EG.USE.COMM.FO.ZS",year);
         if (fossilValue != -1) {
-            tvFossilFuelEnergyConsumptionPanel.setText(String.format("%.2f", fossilValue) + "%");
+            tvFossilFuelEnergyConsumptionPanel.setText(String.format("%.2f", fossilValue) + getString(R.string.percentage));
         } else {
-            tvFossilFuelEnergyConsumptionPanel.setText("N/A");
+            tvFossilFuelEnergyConsumptionPanel.setText(getString(R.string.not_applicable));
         }
         float otherValue = 100;
         if (renewableValue != -1){
@@ -589,9 +589,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (otherValue >= 0){
-            tvOtherEnergyConsumptionPanel.setText(String.format("%.2f", otherValue) + "%");
+            tvOtherEnergyConsumptionPanel.setText(String.format("%.2f", otherValue) + getString(R.string.percentage));
         }else{
-            tvOtherEnergyConsumptionPanel.setText("0%");
+            tvOtherEnergyConsumptionPanel.setText(getString(R.string.zero_percent));
         }
     }
 
@@ -670,7 +670,7 @@ public class MainActivity extends AppCompatActivity {
             if (value != null) {
                 valueTextView.setText(String.format("%.2f%%", value.getValue()));
             } else {
-                valueTextView.setText("N/A");
+                valueTextView.setText(getString(R.string.not_applicable));
             }
         }
     }
@@ -823,7 +823,7 @@ public class MainActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                loadingDialog.setMessage("Saving data to cache...");
+                loadingDialog.setMessage(getString(R.string.saving_data_to_cache));
             }
         });
 
@@ -901,12 +901,12 @@ public class MainActivity extends AppCompatActivity {
     public void showHintDialog(View view){
         AlertDialog.Builder dlgAlert  = new AlertDialog.Builder(this);
         dlgAlert.setMessage(
-                "- Select a country and a specific year from the dropdown boxes in the title\n\n" +
-                "- Click on an indicator to toggle select/deselect it\n\n" +
-                "- Long press on an indicator to deselect all other indicators\n\n" +
-                "- Scroll down on the pie chart to see a line chart of the selected indicator(s) energy consumption over time");
-        dlgAlert.setTitle("How to use");
-        dlgAlert.setPositiveButton("Ok",
+                "- " + getString(R.string.dialog_box_year_and_country) +"\n\n" +
+                "- " + getString(R.string.dialog_box_toggle_indicator) +"\n\n" +
+                "- "+ getString(R.string.dialog_box_long_press_indicator) +"\n\n" +
+                "- " + getString(R.string.dialog_box_line_graph));
+        dlgAlert.setTitle(getString(R.string.how_to_use));
+        dlgAlert.setPositiveButton(getString(R.string.ok),
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         //dismiss the dialog
