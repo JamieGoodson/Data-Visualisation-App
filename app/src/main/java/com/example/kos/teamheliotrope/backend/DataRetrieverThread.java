@@ -99,11 +99,7 @@ public class DataRetrieverThread extends Thread {
             e.printStackTrace();
         }
 
-        //Restarts application
-        Intent i = activity.getBaseContext().getPackageManager()
-                .getLaunchIntentForPackage( activity.getBaseContext().getPackageName() );
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        activity.startActivity(i);
+        restartApplication();
         return null;
     }
 
@@ -158,7 +154,19 @@ public class DataRetrieverThread extends Thread {
 
         } catch (JSONException e) {
             e.printStackTrace();
+            restartApplication();
+        }catch (Exception e){
+            e.printStackTrace();
+            restartApplication();
         }
+    }
+
+    private void restartApplication(){
+        //Restarts application
+        Intent i = activity.getBaseContext().getPackageManager()
+                .getLaunchIntentForPackage( activity.getBaseContext().getPackageName() );
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        activity.startActivity(i);
     }
 
     /**

@@ -83,11 +83,15 @@ public class CountryInfoThread extends Thread {
             e.printStackTrace();
         }
 
+        restartApplication();
+        return null;
+    }
+
+    private void restartApplication() {
         //Restarts application
         Intent i = activity.getBaseContext().getPackageManager().getLaunchIntentForPackage(activity.getBaseContext().getPackageName());
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         activity.startActivity(i);
-        return null;
     }
 
     /**
@@ -113,6 +117,7 @@ public class CountryInfoThread extends Thread {
             }
         }catch (Exception e){
             e.printStackTrace();
+            restartApplication();
         }
     }
 }
